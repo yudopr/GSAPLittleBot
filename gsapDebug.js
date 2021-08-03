@@ -77,6 +77,12 @@ function buildController() {
         background: -webkit-linear-gradient(to left, #3CD3AD, #4CB8C4);  /* Chrome 10-25, Safari 5.1-6 */
         background: linear-gradient(to left, #3CD3AD, #4CB8C4); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     }
+    .pause{
+        background: linear-gradient(to left, rgb(255, 195, 113), rgb(255, 95, 109)) !important;
+    }
+    .play{
+        background: linear-gradient(to left, #3CD3AD, #4CB8C4) !important;
+    }
     #bgProg{
         width:0%;
         height:100%;        
@@ -183,7 +189,7 @@ function buildController() {
     playToggleBTN.type = 'button';
     playToggleBTN.value = 'Pause';
     playToggleBTN.id = 'pauseBtn';
-    playToggleBTN.className = 'item';
+    playToggleBTN.className = 'item play';
 
     span = document.createElement('span');
     span.className = 'item';
@@ -251,6 +257,7 @@ function timelineControl(_controllerTL) {
     slider.oninput = function () {
         _controllerTL.pause();
         playToggleBTN.value = "Play";
+        playToggleBTN.classList.togglePlayStatus(0);
         if (_controllerTL) {
             _controllerTL.progress(this.value / 100);
             setCurrentTime(_controllerTL);
@@ -261,6 +268,7 @@ function timelineControl(_controllerTL) {
             _controllerTL.play(0);
             slider.value = 0;
             playToggleBTN.value = "Pause";
+            playToggleBTN.classList.togglePlayStatus(1);
             isComplete = false;
         }
     }
@@ -269,6 +277,7 @@ function timelineControl(_controllerTL) {
             if (_controllerTL.isActive()) {
                 _controllerTL.pause();
                 this.value = "Play";
+                playToggleBTN.classList.togglePlayStatus(0);
                 isComplete = false;
                 setCurrentTime(_controllerTL);
             } else {
@@ -278,11 +287,21 @@ function timelineControl(_controllerTL) {
                     isComplete = false;
                 }
                 this.value = "Pause";
+                playToggleBTN.classList.togglePlayStatus(1);
                 setCurrentTime(_controllerTL);
             }
         }
     }
 
+    DOMTokenList.prototype.togglePlayStatus = function(_status){
+        if(_status){
+            this.remove('pause');
+            this.add('play');
+        }else{
+            this.remove('play');
+            this.add('pause');
+        }
+    }
     function setCurrentTime(_TL) {
         document.getElementById('current-time').innerHTML = _TL.time().toFixed(2) + '/' + _TL.duration().toFixed(2);
     }
@@ -298,6 +317,7 @@ function timelineControl(_controllerTL) {
 
     function onTLComplete() {
         playToggleBTN.value = "Play";
+        playToggleBTN.classList.togglePlayStatus(0);
         isComplete = true;
     }
     _controllerTL.eventCallback("onUpdate", onTLUpdate);
