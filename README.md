@@ -20,7 +20,7 @@ if(typeof timelineControl == "function") timelineControl(_yourMainTL);
 Put the code wherever you like, but I _highly recommend_ on GSAP animation start event just to be sure the timeline is there for you to access.
 _The if clause only there so you won't need to worry about errors when you delete the script tag on HTML file_
 
-3. If succeed, you will see this UI floating on your webpage.
+3. If succeed, you will see this UI floating on your webpage.<br>
 ![Image of GSAPLittleBot](https://github.com/yudopr/GSAPLittleBot/blob/main/img/GSAPLittleBot.png?raw=true)
 
 
