@@ -21,7 +21,7 @@ Put the code wherever you like, but I _highly recommend_ on GSAP animation start
 _The if clause only there so you won't need to worry about errors when you delete the script tag on HTML file_
 
 3. If succeed, you will see this UI floating on your webpage.
-[Image of GSAPLittleBot!](https://github.com/yudopr/GSAPLittleBot/blob/main/img/GSAPLittleBot.png?raw=true)
+![Image of GSAPLittleBot](https://github.com/yudopr/GSAPLittleBot/blob/main/img/GSAPLittleBot.png?raw=true)
 
 
 ### by: G. Yudo Pranolo
