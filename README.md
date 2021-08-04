@@ -19,7 +19,7 @@ if(typeof timelineControl == "function") timelineControl(_yourMainTL);
 ```
 
 Put the code wherever you like, but I _highly recommend_ on GSAP animation start event just to be sure the timeline is there for you to access.
-_the if clause only there so you won't need to worry about errors when you delete the script tag on HTML file_
+_The if clause only there so you won't need to worry about errors when you delete the script tag on HTML file_
 
 ### by: G. Yudo Pranolo
 ### Initial creation: 2/7/21.
