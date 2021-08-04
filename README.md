@@ -1,4 +1,4 @@
-![Robot](https://raw.githubusercontent.com/yudopr/GSAPLittleBot/main/img/robot.png)
+![Robot](https://github.com/yudopr/GSAPLittleBot/blob/6c311258870ea98c10aa5d2701183522dd0682ac/img/robot.png?raw=true)
 
 # GSAPLittleBot
 A floating player for GSAP timeline animation debugging.
