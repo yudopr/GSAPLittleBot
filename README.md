@@ -1,4 +1,6 @@
-# GSAPLittleBox
+![Robot](https://raw.githubusercontent.com/yudopr/GSAPLittleBot/main/img/robot.png)
+
+# GSAPLittleBot
 A floating player for GSAP timeline animation debugging.
  
 ### by: G. Yudo Pranolo
