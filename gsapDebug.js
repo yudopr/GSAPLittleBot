@@ -1,5 +1,79 @@
 var mainDiv, mainDivHeader, slider, replayBTN, playToggleBTN, isComplete = false;
 
+function timelineControl(_controllerTL) {
+    /* THE TIMELINE */
+    slider.oninput = function () {
+        _controllerTL.pause();
+        playToggleBTN.value = "Play";
+        playToggleBTN.classList.togglePlayStatus(0);
+        if (_controllerTL) {
+            _controllerTL.progress(this.value / 100);
+            setCurrentTime(_controllerTL);
+        }
+        isComplete = !(_controllerTL.time()<_controllerTL.duration());
+    }
+    replayBTN.onclick = function () {
+        if (_controllerTL) {
+            _controllerTL.play(0);
+            slider.value = 0;
+            playToggleBTN.value = "Pause";
+            playToggleBTN.classList.togglePlayStatus(1);
+            isComplete = false;
+        }
+    }
+    playToggleBTN.onclick = function () {
+        if (_controllerTL) {
+            if (_controllerTL.isActive()) {
+                _controllerTL.pause();
+                this.value = "Play";
+                playToggleBTN.classList.togglePlayStatus(0);
+                isComplete = false;
+                setCurrentTime(_controllerTL);
+            } else {
+                if (isComplete) _controllerTL.play(0);
+                else {
+                    _controllerTL.play();
+                    isComplete = false;
+                }
+                this.value = "Pause";
+                playToggleBTN.classList.togglePlayStatus(1);
+                setCurrentTime(_controllerTL);
+            }
+        }
+    }
+
+    DOMTokenList.prototype.togglePlayStatus = function(_status){
+        if(_status){
+            this.remove('pause');
+            this.add('play');
+        }else{
+            this.remove('play');
+            this.add('pause');
+        }
+    }
+    function setCurrentTime(_TL) {
+        document.getElementById('current-time').innerHTML = _TL.time().toFixed(2) + '/' + _TL.duration().toFixed(2);
+    }
+
+    function onTLUpdate() {
+        slider.value = _controllerTL.progress().toFixed(2) * 100;
+        setCurrentTime(_controllerTL);
+        gsap.to('#bgProg', {
+            duration: 0.2,
+            width: (_controllerTL.progress().toFixed(2) * 100) + '%'
+        });
+    }
+
+    function onTLComplete() {
+        playToggleBTN.value = "Play";
+        playToggleBTN.classList.togglePlayStatus(0);
+        isComplete = true;
+    }
+    _controllerTL.eventCallback("onUpdate", onTLUpdate);
+    _controllerTL.eventCallback("onComplete", onTLComplete);
+    dragElement(mainDiv);
+}
+
 function buildController() {
     mainDiv = document.createElement('div');
     mainDiv.id = "mainDiv";
@@ -252,87 +326,15 @@ function dragElement(elmnt) {
     }
 }
 
-function timelineControl(_controllerTL) {
-    /* THE TIMELINE */
-    slider.oninput = function () {
-        _controllerTL.pause();
-        playToggleBTN.value = "Play";
-        playToggleBTN.classList.togglePlayStatus(0);
-        if (_controllerTL) {
-            _controllerTL.progress(this.value / 100);
-            setCurrentTime(_controllerTL);
-        }
-    }
-    replayBTN.onclick = function () {
-        if (_controllerTL) {
-            _controllerTL.play(0);
-            slider.value = 0;
-            playToggleBTN.value = "Pause";
-            playToggleBTN.classList.togglePlayStatus(1);
-            isComplete = false;
-        }
-    }
-    playToggleBTN.onclick = function () {
-        if (_controllerTL) {
-            if (_controllerTL.isActive()) {
-                _controllerTL.pause();
-                this.value = "Play";
-                playToggleBTN.classList.togglePlayStatus(0);
-                isComplete = false;
-                setCurrentTime(_controllerTL);
-            } else {
-                if (isComplete) _controllerTL.play(0);
-                else {
-                    _controllerTL.play();
-                    isComplete = false;
-                }
-                this.value = "Pause";
-                playToggleBTN.classList.togglePlayStatus(1);
-                setCurrentTime(_controllerTL);
-            }
-        }
-    }
-
-    DOMTokenList.prototype.togglePlayStatus = function(_status){
-        if(_status){
-            this.remove('pause');
-            this.add('play');
-        }else{
-            this.remove('play');
-            this.add('pause');
-        }
-    }
-    function setCurrentTime(_TL) {
-        document.getElementById('current-time').innerHTML = _TL.time().toFixed(2) + '/' + _TL.duration().toFixed(2);
-    }
-
-    function onTLUpdate() {
-        slider.value = _controllerTL.progress().toFixed(2) * 100;
-        setCurrentTime(_controllerTL);
-        gsap.to('#bgProg', {
-            duration: 0.2,
-            width: (_controllerTL.progress().toFixed(2) * 100) + '%'
-        });
-    }
-
-    function onTLComplete() {
-        playToggleBTN.value = "Play";
-        playToggleBTN.classList.togglePlayStatus(0);
-        isComplete = true;
-    }
-    _controllerTL.eventCallback("onUpdate", onTLUpdate);
-    _controllerTL.eventCallback("onComplete", onTLComplete);
-    dragElement(mainDiv);
-}
 buildController();
 
 /** 
-░██████╗░░██████╗░█████╗░██████╗░  ██╗░░░░░██╗████████╗████████╗██╗░░░░░███████╗  ██████╗░░█████╗░██╗░░██╗
-██╔════╝░██╔════╝██╔══██╗██╔══██╗  ██║░░░░░██║╚══██╔══╝╚══██╔══╝██║░░░░░██╔════╝  ██╔══██╗██╔══██╗╚██╗██╔╝
-██║░░██╗░╚█████╗░███████║██████╔╝  ██║░░░░░██║░░░██║░░░░░░██║░░░██║░░░░░█████╗░░  ██████╦╝██║░░██║░╚███╔╝░
-██║░░╚██╗░╚═══██╗██╔══██║██╔═══╝░  ██║░░░░░██║░░░██║░░░░░░██║░░░██║░░░░░██╔══╝░░  ██╔══██╗██║░░██║░██╔██╗░
-╚██████╔╝██████╔╝██║░░██║██║░░░░░  ███████╗██║░░░██║░░░░░░██║░░░███████╗███████╗  ██████╦╝╚█████╔╝██╔╝╚██╗
-░╚═════╝░╚═════╝░╚═╝░░╚═╝╚═╝░░░░░  ╚══════╝╚═╝░░░╚═╝░░░░░░╚═╝░░░╚══════╝╚══════╝  ╚═════╝░░╚════╝░╚═╝░░╚═╝
+░██████╗░░██████╗░█████╗░██████╗░  ██╗░░░░░██╗████████╗████████╗██╗░░░░░███████╗  ██████╗░░█████╗░████████╗
+██╔════╝░██╔════╝██╔══██╗██╔══██╗  ██║░░░░░██║╚══██╔══╝╚══██╔══╝██║░░░░░██╔════╝  ██╔══██╗██╔══██╗╚══██╔══╝
+██║░░██╗░╚█████╗░███████║██████╔╝  ██║░░░░░██║░░░██║░░░░░░██║░░░██║░░░░░█████╗░░  ██████╦╝██║░░██║░░░██║░░░
+██║░░╚██╗░╚═══██╗██╔══██║██╔═══╝░  ██║░░░░░██║░░░██║░░░░░░██║░░░██║░░░░░██╔══╝░░  ██╔══██╗██║░░██║░░░██║░░░
+╚██████╔╝██████╔╝██║░░██║██║░░░░░  ███████╗██║░░░██║░░░░░░██║░░░███████╗███████╗  ██████╦╝╚█████╔╝░░░██║░░░
+░╚═════╝░╚═════╝░╚═╝░░╚═╝╚═╝░░░░░  ╚══════╝╚═╝░░░╚═╝░░░░░░╚═╝░░░╚══════╝╚══════╝  ╚═════╝░░╚════╝░░░░╚═╝░░░
 
 by: G. Yudo Pranolo
 created: 2/7/21
