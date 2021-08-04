@@ -17,7 +17,7 @@ if(typeof timelineControl == "function") timelineControl(_yourMainTL);
 ```
 
 3. If succeed, you will see this UI floating on your webpage.<br>
-![Image of GSAPLittleBot](https://github.com/yudopr/GSAPLittleBot/blob/main/img/GSAPLittleBot.png?raw=true)
+![Image of GSAPLittleBot](https://github.com/yudopr/GSAPLittleBot/blob/91c655a4c43da194e4d3e92d793d78868c552dc9/img/GSAPLittleBot.png?raw=true)
 
 
 #### by: G. Yudo Pranolo
