@@ -1,11 +1,10 @@
 ![Robot](https://github.com/yudopr/GSAPLittleBot/blob/6c311258870ea98c10aa5d2701183522dd0682ac/img/robot.png?raw=true)
 
 # GSAPLittleBot
-A floating player for GSAP timeline animation debugging.
- 
-### by: G. Yudo Pranolo
-### Initial creation: 2/7/21.
+#### by: G. Yudo Pranolo
+#### Initial creation: 2/7/21.
 
+A floating player for GSAP timeline animation debugging.
 
 How to use:
 1. Import the JS file from the HTML via script tag:
