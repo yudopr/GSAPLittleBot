@@ -253,7 +253,6 @@ function dragElement(elmnt) {
 }
 
 function timelineControl(_controllerTL) {
-    buildController();
     /* THE TIMELINE */
     slider.oninput = function () {
         _controllerTL.pause();
@@ -325,7 +324,7 @@ function timelineControl(_controllerTL) {
     _controllerTL.eventCallback("onComplete", onTLComplete);
     dragElement(mainDiv);
 }
-
+buildController();
 
 /** 
 ░██████╗░░██████╗░█████╗░██████╗░  ██╗░░░░░██╗████████╗████████╗██╗░░░░░███████╗  ██████╗░░█████╗░██╗░░██╗
