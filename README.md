@@ -16,11 +16,11 @@ How to use:<br>
 if(typeof timelineControl == "function") timelineControl();
 ```
 
-3. If succeed, you will see this UI floating on your webpage.<br>
+3. If succeed, you will see this UI on the bottom of your dev webpage.<br>
 ![Image of GSAPLittleBot](https://raw.githubusercontent.com/yudopr/GSAPLittleBot/main/img/GSAPLittleBot.V2.png)
 
 4. Sample page coming soon!
 
 
-#### by: G. Yudo Pranolo
+#### by: G. Yudo
 #### Initial creation: 4/8/21.
