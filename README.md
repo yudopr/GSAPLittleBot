@@ -4,10 +4,10 @@
 A floating player for GSAP timeline animation debugging.<br>
 
 How to use:<br>
-1. Import the JS file from the HTML via script tag [JSDelivr CDN: V1!](https://cdn.jsdelivr.net/gh/yudopr/GSAPLittleBox@622fa383c6efe1e9268b87593cfbbaf1ad123c40/gsapDebug.js) inside the header or body tag.<br>
+1. Import the JS file from the HTML via script tag [JSDelivr CDN: V1!](https://cdn.jsdelivr.net/gh/yudopr/GSAPLittleBox@6a2ade00af7437404d9fd292d600a86e4e8ec10d/gsapDebug.js) inside the header or body tag.<br>
 
 ```HTML
-<script src="https://cdn.jsdelivr.net/gh/yudopr/GSAPLittleBox@622fa383c6efe1e9268b87593cfbbaf1ad123c40/gsapDebug.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/yudopr/GSAPLittleBox@6a2ade00af7437404d9fd292d600a86e4e8ec10d/gsapDebug.js" type="text/javascript"></script>
 ```
 
 2. Initiate the target timeline: Put the code wherever you like, but I _highly recommend_ on GSAP animation start event just to be sure the timeline is there for you to access. _The if clause only there so you won't need to worry about errors when you delete the script tag on HTML file_<br>
@@ -17,7 +17,7 @@ if(typeof timelineControl == "function") timelineControl();
 ```
 
 3. If succeed, you will see this UI floating on your webpage.<br>
-![Image of GSAPLittleBot](https://raw.githubusercontent.com/yudopr/GSAPLittleBot/main/img/GSAPLittleBot.v1.png)
+![Image of GSAPLittleBot](https://cdn.jsdelivr.net/gh/yudopr/GSAPLittleBox@82e101117f843d177688d04e9c6ec580abaab977/gsapDebug.js)
 
 4. Sample page coming soon!
 
