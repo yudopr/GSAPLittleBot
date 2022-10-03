@@ -8,7 +8,10 @@ function buildController() {
         itemStyle = document.createElement('style');
         itemStyle.type = 'text/css';
         itemStyle.innerHTML =
-            `@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500&display=swap');
+            `@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400&display=swap');
+        .button{
+            cursor: pointer;
+        }
         .clearfix:after {clear: both;}
         #mainDiv, .bgImg, .frost {
             position: fixed;
@@ -49,6 +52,9 @@ function buildController() {
             justify-content: space-around;
             filter:drop-shadow(0 0 5px rgba(0, 0, 0, 0.2));
         }
+        .item p{
+            width:100%;
+        }
         .dropdown{
             width:80px;
         }
@@ -59,9 +65,8 @@ function buildController() {
             overflow:hidden;
         }
         .timing{
-            width:35px;
+            width:55px;
             text-align:center;
-            line-height:0.5;
         }
         #bgProg{
             width:0%;
@@ -122,11 +127,14 @@ function buildController() {
             -webkit-appearance: none;
             border-radius:50%;
         }
+        i{
+            pointer-events:none;
+        }
         `;
 
         dropdownCont = document.createElement('div');
         dropdownCont.id = 'dropdownCont';
-        dropdownCont.className = 'dropdown item';
+        dropdownCont.className = 'dropdown item button';
 
         dropdown = document.createElement('select');
         dropdown.id = "timeline";
@@ -149,23 +157,23 @@ function buildController() {
         replayBTN.type = 'button';
         replayBTN.innerHTML = '<i class="fa-solid fa-arrow-rotate-left"></i>';
         replayBTN.id = 'replayBtn';
-        replayBTN.className = 'item';
+        replayBTN.className = 'item button';
 
         playToggleBTN = document.createElement('div');
         playToggleBTN.type = 'button';
         playToggleBTN.innerHTML = pauseButton;
         playToggleBTN.id = 'pauseBtn';
-        playToggleBTN.className = 'item play';
+        playToggleBTN.className = 'item play button';
+
+        currentTime = document.createElement('div');
+        currentTime.id = 'currentTime';
+        currentTime.className = 'timing item';
+        currentTime.innerHTML = `<p id="current-time">0.00</p>`;
 
         timeDuration = document.createElement('div');
         timeDuration.id = 'timeDuration';
         timeDuration.className = 'timing item';
-        timeDuration.innerHTML = `<p id="current-time" class="item"></p>`;
-
-        textDuration = document.createElement('div');
-        textDuration.id = 'textDuration';
-        textDuration.className = 'timing item';
-        textDuration.innerHTML = `<p id="duration-time" class="item"></p>`;
+        timeDuration.innerHTML = `<p id="duration-time">0.00</p>`;
 
         bg = document.createElement('div');
         bg.className = 'bgImg';
@@ -175,9 +183,9 @@ function buildController() {
 
         mainDiv.appendChild(dropdownCont);
         mainDiv.appendChild(playToggleBTN);
-        mainDiv.appendChild(timeDuration);
+        mainDiv.appendChild(currentTime);
         mainDiv.appendChild(sliderCont);
-        mainDiv.appendChild(textDuration);
+        mainDiv.appendChild(timeDuration);
         mainDiv.appendChild(replayBTN);
         mainDiv.appendChild(itemStyle);
         document.body.appendChild(bg);
@@ -266,7 +274,6 @@ function timelineEvents(_controllerTL) {
     }
 
     function onTLUpdate() {
-        playToggleBTN.innerHTML = pauseButton;
         slider.value = _controllerTL.progress().toFixed(2) * 100;
         setCurrentTime(_controllerTL);
     }
