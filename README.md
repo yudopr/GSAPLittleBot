@@ -4,10 +4,10 @@
 A floating player for GSAP timeline animation debugging.<br>
 
 How to use:<br>
-1. Import the JS file from the HTML via script tag [JSDelivr CDN: V1!](https://cdn.jsdelivr.net/gh/yudopr/GSAPLittleBox@6a2ade00af7437404d9fd292d600a86e4e8ec10d/gsapDebug.js) inside the header or body tag.<br>
+1. Import the JS file from the HTML via script tag [JSDelivr CDN: V1!](https://cdn.jsdelivr.net/gh/yudopr/GSAPLittleBox@c0a4bf665b700d9f21cdeacf2745b1df0f329a38/gsapDebug.js) inside the header or body tag.<br>
 
 ```HTML
-<script src="https://cdn.jsdelivr.net/gh/yudopr/GSAPLittleBox@6a2ade00af7437404d9fd292d600a86e4e8ec10d/gsapDebug.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/yudopr/GSAPLittleBox@c0a4bf665b700d9f21cdeacf2745b1df0f329a38/gsapDebug.js" type="text/javascript"></script>
 ```
 
 2. Initiate the target timeline: Put the code wherever you like, but I _highly recommend_ on GSAP animation start event just to be sure the timeline is there for you to access. _The if clause only there so you won't need to worry about errors when you delete the script tag on HTML file_<br>
