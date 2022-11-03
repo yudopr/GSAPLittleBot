@@ -192,10 +192,9 @@ function buildController() {
             document.body.appendChild(bg);
             document.body.appendChild(frost);
             document.body.appendChild(mainDiv);
-
         }, 'anonymous');
     }else{
-        loadScript = function(e,t,a){var n=document.createElement("script");n.async=!0,a&&(n.crossOrigin=a),n.src=e;var o=document.getElementsByTagName("head")[0];o.parentNode.insertBefore(n,o),n.onload=n.onreadystatechange=function(){n.readyState&&!/complete|loaded/.test(n.readyState)||("function"==typeof t&&t(),n.onload=null,n.onreadystatechange=null)}}
+        loadScript = function(e,t,a){var n=document.createElement("script");n.async=!0,a&&(n.crossOrigin=a),n.src=e;var o=document.getElementsByTagName("head")[0];o.insertBefore(n,o.firstChild),n.onload=n.onreadystatechange=function(){n.readyState&&!/complete|loaded/.test(n.readyState)||("function"==typeof t&&t(),n.onload=null,n.onreadystatechange=null)}};
         buildController();
     }
 }
@@ -213,30 +212,29 @@ function timelineControl() {
                 }
             }
         }
-        timelineEvents(select.timelines[0]);
         select.addEventListener('change', function () {
             timelineEvents(select.timelines[this.value]);
             select.timelines[this.value].play(0);
         })
+        select.dispatchEvent(new Event('change'));
     }
 }
 
-function timelineEvents(_controllerTL) {
-    console.log(_controllerTL);
+function timelineEvents(_controlledTL) {
     /* THE TIMELINE */
-    document.querySelector('#duration-time').innerHTML = _controllerTL.duration().toFixed(2);
+    document.querySelector('#duration-time').innerHTML = _controlledTL.duration().toFixed(2);
     slider.oninput = function () {
-        _controllerTL.pause();
+        _controlledTL.pause();
         playToggleBTN.innerHTML = playButton;
         playToggleBTN.classList.togglePlayStatus(0);
-        if (_controllerTL) {
-            _controllerTL.progress(this.value / 100);
-            setCurrentTime(_controllerTL);
+        if (_controlledTL) {
+            _controlledTL.progress(this.value / 100);
+            setCurrentTime(_controlledTL);
         }
     }
     replayBTN.onclick = function () {
-        if (_controllerTL) {
-            _controllerTL.play(0);
+        if (_controlledTL) {
+            _controlledTL.play(0);
             slider.value = 0;
             playToggleBTN.innerHTML = pauseButton;
             playToggleBTN.classList.togglePlayStatus(1);
@@ -244,26 +242,25 @@ function timelineEvents(_controllerTL) {
         }
     }
     playToggleBTN.onclick = function () {
-        if (_controllerTL) {
-            if (_controllerTL.isActive()) {
-                _controllerTL.pause();
+        if (_controlledTL) {
+            if (_controlledTL.isActive()) {
+                _controlledTL.pause();
                 this.innerHTML = playButton;
                 playToggleBTN.classList.togglePlayStatus(0);
                 isComplete = false;
-                setCurrentTime(_controllerTL);
+                setCurrentTime(_controlledTL);
             } else {
-                if (isComplete) _controllerTL.play(0);
+                if (isComplete) _controlledTL.play(0);
                 else {
-                    _controllerTL.play();
+                    _controlledTL.play();
                     isComplete = false;
                 }
                 this.innerHTML = pauseButton;
                 playToggleBTN.classList.togglePlayStatus(1);
-                setCurrentTime(_controllerTL);
+                setCurrentTime(_controlledTL);
             }
         }
     }
-
     DOMTokenList.prototype.togglePlayStatus = function (_status) {
         if (_status) {
             this.remove('pause');
@@ -279,8 +276,8 @@ function timelineEvents(_controllerTL) {
     }
 
     function onTLUpdate() {
-        slider.value = _controllerTL.progress().toFixed(2) * 100;
-        setCurrentTime(_controllerTL);
+        slider.value = _controlledTL.progress().toFixed(2) * 100;
+        setCurrentTime(_controlledTL);
     }
 
     function onTLComplete() {
@@ -288,8 +285,8 @@ function timelineEvents(_controllerTL) {
         playToggleBTN.classList.togglePlayStatus(0);
         isComplete = true;
     }
-    _controllerTL.eventCallback("onUpdate", onTLUpdate);
-    _controllerTL.eventCallback("onComplete", onTLComplete);
+    _controlledTL.eventCallback("onUpdate", onTLUpdate);
+    _controlledTL.eventCallback("onComplete", onTLComplete);
 }
 buildController();
 let playButton = `<i class="fa-solid fa-play"></i>`;
