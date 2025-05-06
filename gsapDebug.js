@@ -57,7 +57,26 @@ function buildController() {
                 width:100%;
             }
             .dropdown{
-                width:80px;
+                width:auto;
+                min-width:80px;
+                max-width:200px;
+            }
+            #timeline {
+                width:100%;
+                overflow:visible;
+                background:transparent;
+                color:#efefef;
+                border:none;
+                outline:none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                padding-right:15px;
+                cursor:pointer;
+            }
+            #timeline option {
+                background:#262b38;
+                color:#efefef;
             }
             #sliderCont{
                 width:90%;
@@ -203,20 +222,62 @@ function timelineControl() {
     var select = document.querySelector('#timeline');
     if (select.innerHTML.length <= 0) {
         select.timelines = [];
+        var timelineNames = [];
+        
+        // First, collect all TimelineMax instances
         for (const theTL in window) {
             if (Object.hasOwnProperty.call(window, theTL)) {
                 const element = window[theTL];
                 if (element instanceof TimelineMax) {
-                    select.options[select.options.length] = new Option(theTL, select.options.length);
                     select.timelines.push(element);
+                    timelineNames.push(theTL);
                 }
             }
         }
+        
+        // Count animated elements in each timeline
+        // GSAP timelines contain "tweens" which are the actual animations
+        var timelineInfo = select.timelines.map(function(timeline, index) {
+            // Get number of tweens in this timeline (which corresponds to animated elements)
+            var tweenCount = 0;
+            
+            // Count the tweens
+            if (timeline.getChildren) {
+                var children = timeline.getChildren(true, true, true);
+                tweenCount = children.length;
+            }
+            
+            return {
+                timeline: timeline,
+                name: timelineNames[index],
+                tweenCount: tweenCount
+            };
+        });
+        
+        // Sort timelines by number of animated elements (descending)
+        timelineInfo.sort(function(a, b) {
+            return b.tweenCount - a.tweenCount;
+        });
+        
+        // Rebuild the select.timelines array with the sorted timelines
+        select.timelines = timelineInfo.map(function(info) {
+            return info.timeline;
+        });
+        
+        // Rebuild the dropdown with the sorted timeline names
+        timelineInfo.forEach(function(info, index) {
+            select.options[select.options.length] = new Option(info.name + " (" + info.tweenCount + ")", index);
+        });
+        
         select.addEventListener('change', function () {
             timelineEvents(select.timelines[this.value]);
             select.timelines[this.value].play(0);
-        })
-        select.dispatchEvent(new Event('change'));
+        });
+        
+        // Trigger change event to initialize the first timeline
+        if (select.options.length > 0) {
+            select.dispatchEvent(new Event('change'));
+        }
     }
 }
 
@@ -305,4 +366,5 @@ by: G. Yudo
 created: 
 v1: 2/7/21
 v2: 3/10/22
+v3: 5/6/25 - Added timeline sorting by number of animated elements
 **/
