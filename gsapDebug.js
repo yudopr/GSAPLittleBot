@@ -1,15 +1,63 @@
-var mainDiv, mainDivHeader, slider, replayBTN, playToggleBTN, isComplete = false;
-var loadScript;
-function buildController() {    
-    if(loadScript){
-        loadScript("https://kit.fontawesome.com/b3e2729d01.js", function () {
-            mainDiv = document.createElement('div');
-            mainDiv.id = "mainDiv";
+/**
+ * GSAP Debug Controller - ES6 Class Version
+ *
+ * ██████  ███████  █████  ██████      ██████  ███████ ██████  ██    ██  ██████
+ *██       ██      ██   ██ ██   ██     ██   ██ ██      ██   ██ ██    ██ ██
+ *██   ███ ███████ ███████ ██████      ██   ██ █████   ██████  ██    ██ ██   ███
+ *██    ██      ██ ██   ██ ██          ██   ██ ██      ██   ██ ██    ██ ██    ██
+ * ██████  ███████ ██   ██ ██          ██████  ███████ ██████   ██████   ██████
+ *
+ *
+ * by: G. Yudo
+ * created:
+ * v1: 2/7/21
+ * v2: 3/10/22
+ * v3: 5/6/25 - Added timeline sorting by number of animated elements
+ * v4: ES6 Class refactor
+ */
 
-            itemStyle = document.createElement('style');
-            itemStyle.type = 'text/css';
-            itemStyle.innerHTML =
-                `@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400&display=swap');
+class GSAPDebug {
+    constructor() {
+        this.mainDiv = null;
+        this.slider = null;
+        this.replayBTN = null;
+        this.playToggleBTN = null;
+        this.isComplete = false;
+        this.loadScript = null;
+        this.controlledTimeline = null;
+
+        this.playButton = `<i class="fa-solid fa-play"></i>`;
+        this.pauseButton = `<i class="fa-solid fa-pause"></i>`;
+
+        this.init();
+    }
+
+    init() {
+        this.buildController();
+    }
+
+    loadExternalScript(url, callback, crossOrigin = null) {
+        const script = document.createElement("script");
+        script.async = true;
+        if (crossOrigin) script.crossOrigin = crossOrigin;
+        script.src = url;
+
+        const head = document.getElementsByTagName("head")[0];
+        head.insertBefore(script, head.firstChild);
+
+        script.onload = script.onreadystatechange = () => {
+            if (script.readyState && !/complete|loaded/.test(script.readyState)) return;
+            if (typeof callback === "function") callback();
+            script.onload = null;
+            script.onreadystatechange = null;
+        };
+    }
+
+    createStyles() {
+        const itemStyle = document.createElement('style');
+        itemStyle.type = 'text/css';
+        itemStyle.innerHTML = `
+            @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400&display=swap');
             .button{
                 cursor: pointer;
             }
@@ -90,12 +138,15 @@ function buildController() {
             }
             #bgProg{
                 width:0%;
-                height:100%;        
+                height:100%;
                 position:absolute;
                 background: #efefef;  /* fallback for old browsers */
                 z-index:-10;
             }
             #replayBtn{
+                margin-right:10px;
+            }
+            #refreshBtn{
                 margin-right:10px;
             }
             input[type=range]#progressSlider {
@@ -150,221 +201,352 @@ function buildController() {
             i{
                 pointer-events:none;
             }
-            `;
-
-            dropdownCont = document.createElement('div');
-            dropdownCont.id = 'dropdownCont';
-            dropdownCont.className = 'dropdown item button';
-
-            dropdown = document.createElement('select');
-            dropdown.id = "timeline";
-            dropdown.name = "theTL";
-            dropdownCont.appendChild(dropdown);
-
-            sliderCont = document.createElement('div');
-            sliderCont.id = 'sliderCont';
-            sliderCont.className = 'item';
-
-            slider = document.createElement('input');
-            slider.type = 'range';
-            slider.min = 0;
-            slider.max = 100;
-            slider.value = "0";
-            slider.id = 'progressSlider';
-            sliderCont.appendChild(slider);
-
-            replayBTN = document.createElement('div');
-            replayBTN.type = 'button';
-            replayBTN.innerHTML = '<i class="fa-solid fa-arrow-rotate-left"></i>';
-            replayBTN.id = 'replayBtn';
-            replayBTN.className = 'item button';
-
-            playToggleBTN = document.createElement('div');
-            playToggleBTN.type = 'button';
-            playToggleBTN.innerHTML = pauseButton;
-            playToggleBTN.id = 'pauseBtn';
-            playToggleBTN.className = 'item play button';
-
-            currentTime = document.createElement('div');
-            currentTime.id = 'currentTime';
-            currentTime.className = 'timing item';
-            currentTime.innerHTML = `<p id="current-time">0.00</p>`;
-
-            timeDuration = document.createElement('div');
-            timeDuration.id = 'timeDuration';
-            timeDuration.className = 'timing item';
-            timeDuration.innerHTML = `<p id="duration-time">0.00</p>`;
-
-            bg = document.createElement('div');
-            bg.className = 'bgImg';
-            // bg.style.backgroundImage = `url(images/resolve_bg.jpg)` || `url(images/resolve_bg.png)`;
-            frost = document.createElement('div');
-            frost.className = 'frost';
-
-            mainDiv.appendChild(dropdownCont);
-            mainDiv.appendChild(playToggleBTN);
-            mainDiv.appendChild(currentTime);
-            mainDiv.appendChild(sliderCont);
-            mainDiv.appendChild(timeDuration);
-            mainDiv.appendChild(replayBTN);
-            mainDiv.appendChild(itemStyle);
-            document.body.appendChild(bg);
-            document.body.appendChild(frost);
-            document.body.appendChild(mainDiv);
-        }, 'anonymous');
-    }else{
-        loadScript = function(e,t,a){var n=document.createElement("script");n.async=!0,a&&(n.crossOrigin=a),n.src=e;var o=document.getElementsByTagName("head")[0];o.insertBefore(n,o.firstChild),n.onload=n.onreadystatechange=function(){n.readyState&&!/complete|loaded/.test(n.readyState)||("function"==typeof t&&t(),n.onload=null,n.onreadystatechange=null)}};
-        buildController();
+        `;
+        return itemStyle;
     }
-}
 
-function timelineControl() {
-    var select = document.querySelector('#timeline');
-    if (select.innerHTML.length <= 0) {
-        select.timelines = [];
-        var timelineNames = [];
-        
-        // First, collect all TimelineMax instances
+    createDropdown() {
+        const dropdownCont = document.createElement('div');
+        dropdownCont.id = 'dropdownCont';
+        dropdownCont.className = 'dropdown item button';
+
+        const dropdown = document.createElement('select');
+        dropdown.id = "timeline";
+        dropdown.name = "theTL";
+        dropdown.title = "Select timeline to control";
+        dropdownCont.appendChild(dropdown);
+
+        return dropdownCont;
+    }
+
+    createSlider() {
+        const sliderCont = document.createElement('div');
+        sliderCont.id = 'sliderCont';
+        sliderCont.className = 'item';
+
+        this.slider = document.createElement('input');
+        this.slider.type = 'range';
+        this.slider.min = 0;
+        this.slider.max = 100;
+        this.slider.value = "0";
+        this.slider.id = 'progressSlider';
+        this.slider.title = 'Scrub timeline position';
+        sliderCont.appendChild(this.slider);
+
+        return sliderCont;
+    }
+
+    createReplayButton() {
+        this.replayBTN = document.createElement('div');
+        this.replayBTN.type = 'button';
+        this.replayBTN.innerHTML = '<i class="fa-solid fa-arrow-rotate-left"></i>';
+        this.replayBTN.id = 'replayBtn';
+        this.replayBTN.className = 'item button';
+        this.replayBTN.title = 'Replay timeline from start';
+
+        return this.replayBTN;
+    }
+
+    createPlayToggleButton() {
+        this.playToggleBTN = document.createElement('div');
+        this.playToggleBTN.type = 'button';
+        this.playToggleBTN.innerHTML = this.pauseButton;
+        this.playToggleBTN.id = 'pauseBtn';
+        this.playToggleBTN.className = 'item play button';
+        this.playToggleBTN.title = 'Play/Pause timeline';
+
+        return this.playToggleBTN;
+    }
+
+    createRefreshButton() {
+        const refreshBTN = document.createElement('div');
+        refreshBTN.type = 'button';
+        refreshBTN.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i>';
+        refreshBTN.id = 'refreshBtn';
+        refreshBTN.className = 'item button';
+        refreshBTN.title = 'Refresh timeline list';
+
+        refreshBTN.onclick = () => {
+            this.initializeTimelineControl();
+        };
+
+        return refreshBTN;
+    }
+
+    createTimeDisplays() {
+        const currentTime = document.createElement('div');
+        currentTime.id = 'currentTime';
+        currentTime.className = 'timing item';
+        currentTime.title = 'Current timeline time';
+        currentTime.innerHTML = `<p id="current-time">0.00</p>`;
+
+        const timeDuration = document.createElement('div');
+        timeDuration.id = 'timeDuration';
+        timeDuration.className = 'timing item';
+        timeDuration.title = 'Total timeline duration';
+        timeDuration.innerHTML = `<p id="duration-time">0.00</p>`;
+
+        return { currentTime, timeDuration };
+    }
+
+    createBackgroundElements() {
+        const bg = document.createElement('div');
+        bg.className = 'bgImg';
+
+        const frost = document.createElement('div');
+        frost.className = 'frost';
+
+        return { bg, frost };
+    }
+
+    buildController() {
+        if (this.loadScript) {
+            this.loadScript("https://kit.fontawesome.com/b3e2729d01.js", () => {
+                this.assembleController();
+            }, 'anonymous');
+        } else {
+            this.loadScript = this.loadExternalScript;
+            this.buildController();
+        }
+    }
+
+    assembleController() {
+        this.mainDiv = document.createElement('div');
+        this.mainDiv.id = "mainDiv";
+
+        const itemStyle = this.createStyles();
+        const dropdownCont = this.createDropdown();
+        const sliderCont = this.createSlider();
+        const { currentTime, timeDuration } = this.createTimeDisplays();
+        const { bg, frost } = this.createBackgroundElements();
+
+        this.mainDiv.appendChild(dropdownCont);
+        this.mainDiv.appendChild(this.createRefreshButton());
+        this.mainDiv.appendChild(this.createPlayToggleButton());
+        this.mainDiv.appendChild(currentTime);
+        this.mainDiv.appendChild(sliderCont);
+        this.mainDiv.appendChild(timeDuration);
+        this.mainDiv.appendChild(this.createReplayButton());
+        this.mainDiv.appendChild(itemStyle);
+
+        document.body.appendChild(bg);
+        document.body.appendChild(frost);
+        document.body.appendChild(this.mainDiv);
+
+        // Initialize timeline control after DOM is ready with multiple retry attempts
+        setTimeout(() => this.initializeTimelineControl(), 1000);
+    }
+
+    collectTimelines(select, timelineNames) {
+        // Method 1: Search window properties (original method)
         for (const theTL in window) {
             if (Object.hasOwnProperty.call(window, theTL)) {
                 const element = window[theTL];
-                if (element instanceof TimelineMax) {
+                if ((typeof TimelineMax !== 'undefined' && element instanceof TimelineMax) ||
+                    (typeof gsap !== 'undefined' && gsap.core && element instanceof gsap.core.Timeline)) {
                     select.timelines.push(element);
                     timelineNames.push(theTL);
                 }
             }
         }
-        
-        // Count animated elements in each timeline
-        // GSAP timelines contain "tweens" which are the actual animations
-        var timelineInfo = select.timelines.map(function(timeline, index) {
-            // Get number of tweens in this timeline (which corresponds to animated elements)
-            var tweenCount = 0;
-            
-            // Count the tweens
-            if (timeline.getChildren) {
-                var children = timeline.getChildren(true, true, true);
-                tweenCount = children.length;
-            }
-            
-            return {
-                timeline: timeline,
-                name: timelineNames[index],
-                tweenCount: tweenCount
-            };
-        });
-        
-        // Sort timelines by number of animated elements (descending)
-        timelineInfo.sort(function(a, b) {
-            return b.tweenCount - a.tweenCount;
-        });
-        
-        // Rebuild the select.timelines array with the sorted timelines
-        select.timelines = timelineInfo.map(function(info) {
-            return info.timeline;
-        });
-        
-        // Rebuild the dropdown with the sorted timeline names
-        timelineInfo.forEach(function(info, index) {
-            select.options[select.options.length] = new Option(info.name + " (" + info.tweenCount + ")", index);
-        });
-        
-        select.addEventListener('change', function () {
-            timelineEvents(select.timelines[this.value]);
-            select.timelines[this.value].play(0);
-        });
-        
-        // Trigger change event to initialize the first timeline
-        if (select.options.length > 0) {
-            select.dispatchEvent(new Event('change'));
-        }
-    }
-}
 
-function timelineEvents(_controlledTL) {
-    /* THE TIMELINE */
-    document.querySelector('#duration-time').innerHTML = _controlledTL.duration().toFixed(2);
-    slider.oninput = function () {
-        _controlledTL.pause();
-        playToggleBTN.innerHTML = playButton;
-        playToggleBTN.classList.togglePlayStatus(0);
-        if (_controlledTL) {
-            _controlledTL.progress(this.value / 100);
-            setCurrentTime(_controlledTL);
+        // Method 2: Access GSAP's internal timeline registry (modern GSAP)
+        if (typeof gsap !== 'undefined' && gsap.globalTimeline) {
+            try {
+                // Get all active timelines from GSAP's global timeline
+                const children = gsap.globalTimeline.getChildren(true, true, true);
+                children.forEach((child) => {
+                    if (child instanceof gsap.core.Timeline && !select.timelines.includes(child)) {
+                        select.timelines.push(child);
+                        timelineNames.push(`Timeline_${select.timelines.length - 1}`);
+                    }
+                });
+            } catch (e) {
+                console.log('GSAP timeline registry access failed:', e);
+            }
         }
-    }
-    replayBTN.onclick = function () {
-        if (_controlledTL) {
-            _controlledTL.play(0);
-            slider.value = 0;
-            playToggleBTN.innerHTML = pauseButton;
-            playToggleBTN.classList.togglePlayStatus(1);
-            isComplete = false;
-        }
-    }
-    playToggleBTN.onclick = function () {
-        if (_controlledTL) {
-            if (_controlledTL.isActive()) {
-                _controlledTL.pause();
-                this.innerHTML = playButton;
-                playToggleBTN.classList.togglePlayStatus(0);
-                isComplete = false;
-                setCurrentTime(_controlledTL);
-            } else {
-                if (isComplete) _controlledTL.play(0);
-                else {
-                    _controlledTL.play();
-                    isComplete = false;
+
+        // Method 3: Search common timeline variable patterns
+        const commonPatterns = ['tl', 'timeline', 'mainTL', 'masterTL', 'mainTimeline', 'masterTimeline'];
+        commonPatterns.forEach(pattern => {
+            if (window[pattern] && !select.timelines.includes(window[pattern])) {
+                const element = window[pattern];
+                if ((typeof TimelineMax !== 'undefined' && element instanceof TimelineMax) ||
+                    (typeof gsap !== 'undefined' && gsap.core && element instanceof gsap.core.Timeline)) {
+                    select.timelines.push(element);
+                    timelineNames.push(pattern);
                 }
-                this.innerHTML = pauseButton;
-                playToggleBTN.classList.togglePlayStatus(1);
-                setCurrentTime(_controlledTL);
+            }
+        });
+    }
+
+    initializeTimelineControl() {
+        const select = document.querySelector('#timeline');
+        if (select) {
+            // Clear existing options and timelines on each initialization
+            select.innerHTML = '';
+            select.timelines = [];
+            const timelineNames = [];
+
+            // Collect all Timeline instances using multiple detection methods
+            this.collectTimelines(select, timelineNames);
+
+            // Count animated elements in each timeline
+            const timelineInfo = select.timelines.map((timeline, index) => {
+                let tweenCount = 0;
+
+                if (timeline.getChildren) {
+                    const children = timeline.getChildren(true, true, true);
+                    tweenCount = children.length;
+                }
+
+                return {
+                    timeline: timeline,
+                    name: timelineNames[index],
+                    tweenCount: tweenCount
+                };
+            });
+
+            // Sort timelines by number of animated elements (descending)
+            timelineInfo.sort((a, b) => b.tweenCount - a.tweenCount);
+
+            // Rebuild arrays with sorted timelines
+            select.timelines = timelineInfo.map(info => info.timeline);
+
+            // Populate dropdown with sorted timeline names
+            timelineInfo.forEach((info, index) => {
+                select.options[select.options.length] = new Option(`${info.name} (${info.tweenCount})`, index);
+            });
+
+            select.addEventListener('change', () => {
+                this.setupTimelineEvents(select.timelines[select.value]);
+                select.timelines[select.value].play(0);
+            });
+
+            // Initialize first timeline
+            if (select.options.length > 0) {
+                select.dispatchEvent(new Event('change'));
             }
         }
     }
-    DOMTokenList.prototype.togglePlayStatus = function (_status) {
-        if (_status) {
-            this.remove('pause');
-            this.add('play');
-        } else {
-            this.remove('play');
-            this.add('pause');
+
+    setupTimelineEvents(controlledTL) {
+        this.controlledTimeline = controlledTL;
+
+        const durationElement = document.querySelector('#duration-time');
+        if (durationElement) {
+            durationElement.innerHTML = controlledTL.duration().toFixed(2);
+        }
+
+        // Slider input handler
+        this.slider.oninput = () => {
+            controlledTL.pause();
+            this.playToggleBTN.innerHTML = this.playButton;
+            this.playToggleBTN.classList.togglePlayStatus(0);
+            if (controlledTL) {
+                controlledTL.progress(this.slider.value / 100);
+                this.setCurrentTime(controlledTL);
+            }
+        };
+
+        // Replay button handler
+        this.replayBTN.onclick = () => {
+            if (controlledTL) {
+                controlledTL.play(0);
+                this.slider.value = 0;
+                this.playToggleBTN.innerHTML = this.pauseButton;
+                this.playToggleBTN.classList.togglePlayStatus(1);
+                this.isComplete = false;
+            }
+        };
+
+        // Play/Pause toggle handler
+        this.playToggleBTN.onclick = () => {
+            if (controlledTL) {
+                if (controlledTL.isActive()) {
+                    controlledTL.pause();
+                    this.playToggleBTN.innerHTML = this.playButton;
+                    this.playToggleBTN.classList.togglePlayStatus(0);
+                    this.isComplete = false;
+                    this.setCurrentTime(controlledTL);
+                } else {
+                    if (this.isComplete) controlledTL.play(0);
+                    else {
+                        controlledTL.play();
+                        this.isComplete = false;
+                    }
+                    this.playToggleBTN.innerHTML = this.pauseButton;
+                    this.playToggleBTN.classList.togglePlayStatus(1);
+                    this.setCurrentTime(controlledTL);
+                }
+            }
+        };
+
+        // Setup timeline callbacks
+        controlledTL.eventCallback("onUpdate", () => this.onTimelineUpdate());
+        controlledTL.eventCallback("onComplete", () => this.onTimelineComplete());
+
+        // Extend DOMTokenList prototype if not already extended
+        if (!DOMTokenList.prototype.togglePlayStatus) {
+            DOMTokenList.prototype.togglePlayStatus = function(status) {
+                if (status) {
+                    this.remove('pause');
+                    this.add('play');
+                } else {
+                    this.remove('play');
+                    this.add('pause');
+                }
+            };
         }
     }
 
-    function setCurrentTime(_TL) {
-        document.getElementById('current-time').innerHTML = _TL.time().toFixed(2);
+    setCurrentTime(timeline) {
+        const currentTimeElement = document.getElementById('current-time');
+        if (currentTimeElement) {
+            currentTimeElement.innerHTML = timeline.time().toFixed(2);
+        }
     }
 
-    function onTLUpdate() {
-        slider.value = _controlledTL.progress().toFixed(2) * 100;
-        setCurrentTime(_controlledTL);
+    onTimelineUpdate() {
+        if (this.controlledTimeline) {
+            this.slider.value = this.controlledTimeline.progress().toFixed(2) * 100;
+            this.setCurrentTime(this.controlledTimeline);
+        }
     }
 
-    function onTLComplete() {
-        playToggleBTN.innerHTML = playButton;
-        playToggleBTN.classList.togglePlayStatus(0);
-        isComplete = true;
+    onTimelineComplete() {
+        this.playToggleBTN.innerHTML = this.playButton;
+        this.playToggleBTN.classList.togglePlayStatus(0);
+        this.isComplete = true;
     }
-    _controlledTL.eventCallback("onUpdate", onTLUpdate);
-    _controlledTL.eventCallback("onComplete", onTLComplete);
+
+    // Public method to manually control timeline
+    controlTimeline(timeline) {
+        this.setupTimelineEvents(timeline);
+    }
+
+    // Public method to destroy the controller
+    destroy() {
+        if (this.mainDiv) {
+            this.mainDiv.remove();
+        }
+        const bg = document.querySelector('.bgImg');
+        const frost = document.querySelector('.frost');
+        if (bg) bg.remove();
+        if (frost) frost.remove();
+    }
 }
-buildController();
-let playButton = `<i class="fa-solid fa-play"></i>`;
-let pauseButton = `<i class="fa-solid fa-pause"></i>`;
-/** 
 
+// Global function for backward compatibility
+function timelineControl(timeline) {
+    if (window.gsapDebugController) {
+        if (timeline) {
+            window.gsapDebugController.controlTimeline(timeline);
+        } else {
+            window.gsapDebugController.initializeTimelineControl();
+        }
+    }
+}
 
- ██████  ███████  █████  ██████      ██████  ███████ ██████  ██    ██  ██████  
-██       ██      ██   ██ ██   ██     ██   ██ ██      ██   ██ ██    ██ ██       
-██   ███ ███████ ███████ ██████      ██   ██ █████   ██████  ██    ██ ██   ███ 
-██    ██      ██ ██   ██ ██          ██   ██ ██      ██   ██ ██    ██ ██    ██ 
- ██████  ███████ ██   ██ ██          ██████  ███████ ██████   ██████   ██████  
-                                                                               
-                                                                                                                                                           
-by: G. Yudo
-created: 
-v1: 2/7/21
-v2: 3/10/22
-v3: 5/6/25 - Added timeline sorting by number of animated elements
-**/
+// Auto-initialize when script loads
+window.gsapDebug = new GSAPDebug();
