@@ -67,4 +67,4 @@ GSAPLittleBot uses three methods to find your timelines:
 - **v3**: 5/6/25 - Added timeline sorting by animated elements
 - **v4**: ES6 Class refactor with improved detection and refresh functionality
 
-#### by: G. Yudo
+#### by: Gyu Dop
