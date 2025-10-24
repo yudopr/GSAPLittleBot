@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSAP Debug Controller - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 200px;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .instructions ul {
+            list-style-position: inside;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .instructions code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+
+        .demo-section {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .demo-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .animation-stage {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 40px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .box {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .box:hover {
+            transform: scale(1.05);
+        }
+
+        .box1 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .box2 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .box3 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .box4 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .box5 { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+
+        .circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: absolute;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .text-demo {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .text-demo span {
+            display: inline-block;
+            opacity: 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .code-example {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .code-example .comment {
+            color: #6a9955;
+        }
+
+        .code-example .keyword {
+            color: #c586c0;
+        }
+
+        .code-example .string {
+            color: #ce9178;
+        }
+
+        .code-example .function {
+            color: #dcdcaa;
+        }
+
+        .alert-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #856404;
+        }
+
+        .alert-box strong {
+            color: #d39e00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎬 GSAP Debug Controller</h1>
+            <p class="subtitle">Advanced Timeline Controller for Rapid Animation Iteration</p>
+
+            <div class="instructions">
+                <h3>🎮 How to Use the Debug Panel</h3>
+                <ul>
+                    <li><strong>Timeline Selection:</strong> Choose which timeline to control from the dropdown</li>
+                    <li><strong>Playback Controls:</strong> Play, pause, replay, or step frame-by-frame through animations</li>
+                    <li><strong>Speed Control:</strong> Adjust playback speed from 0.1x to 4x for detailed inspection</li>
+                    <li><strong>Label Navigation:</strong> Jump to specific animation labels instantly</li>
+                    <li><strong>Bookmarks:</strong> Save important moments in your timeline for quick reference</li>
+                    <li><strong>Keyboard Shortcuts:</strong>
+                        <code>Space</code> = Play/Pause,
+                        <code>R</code> = Replay,
+                        <code>←→</code> = Frame Step,
+                        <code>B</code> = Bookmark,
+                        <code>D</code> = Minimize
+                    </li>
+                </ul>
+            </div>
+
+            <div class="alert-box">
+                <strong>👇 Scroll down and click the buttons below to start the animations!</strong><br>
+                The debug panel will appear at the bottom of the screen.
+            </div>
+        </div>
+
+        <!-- Demo Section 1: Main Timeline -->
+        <div class="demo-section">
+            <h2>Demo 1: Complex Timeline with Labels</h2>
+            <p>This demo showcases a multi-step animation with labeled sections. Use the debug panel to navigate between labels.</p>
+
+            <div class="animation-stage" id="stage1">
+                <div class="box box1">1</div>
+                <div class="box box2">2</div>
+                <div class="box box3">3</div>
+                <div class="box box4">4</div>
+                <div class="box box5">5</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="startMainTimeline()">▶ Start Main Animation</button>
+            </div>
+
+            <div class="code-example">
+<span class="comment">// Creating a labeled timeline</span>
+<span class="keyword">const</span> mainTL = gsap.<span class="function">timeline</span>({ paused: <span class="keyword">true</span> });
+
+mainTL
+  .<span class="function">add</span>(<span class="string">"intro"</span>)
+  .<span class="function">to</span>(<span class="string">".box1"</span>, { x: 200, rotation: 360, duration: 1 })
+
+  .<span class="function">add</span>(<span class="string">"sequence"</span>)
+  .<span class="function">to</span>(<span class="string">".box2"</span>, { y: -100, scale: 1.5, duration: 0.8 }, <span class="string">"sequence"</span>)
+  .<span class="function">to</span>(<span class="string">".box3"</span>, { x: -200, rotation: -360, duration: 1 }, <span class="string">"sequence+=0.2"</span>)
+
+  .<span class="function">add</span>(<span class="string">"finale"</span>)
+  .<span class="function">to</span>(<span class="string">".box4"</span>, { scale: 2, duration: 0.5 })
+  .<span class="function">to</span>(<span class="string">".box5"</span>, { y: 100, rotation: 720, duration: 1.2 });
+
+<span class="comment">// Initialize debug controller</span>
+<span class="keyword">const</span> debugController = <span class="keyword">new</span> <span class="function">GSAPDebug</span>();
+            </div>
+        </div>
+
+        <!-- Demo Section 2: Text Animation -->
+        <div class="demo-section">
+            <h2>Demo 2: Text Animation Timeline</h2>
+            <p>Watch individual characters animate in sequence. Perfect for testing stagger effects.</p>
+
+            <div class="text-demo" id="textDemo">
+                <span>D</span><span>E</span><span>B</span><span>U</span><span>G</span>
+                <span> </span>
+                <span>M</span><span>O</span><span>D</span><span>E</span>
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="startTextTimeline()">▶ Start Text Animation</button>
+            </div>
+
+            <div class="code-example">
+<span class="comment">// Text animation with stagger</span>
+<span class="keyword">const</span> rollTL = gsap.<span class="function">timeline</span>({ paused: <span class="keyword">true</span> });
+
+rollTL
+  .<span class="function">add</span>(<span class="string">"start"</span>)
+  .<span class="function">to</span>(<span class="string">"#textDemo span"</span>, {
+    opacity: 1,
+    y: -20,
+    stagger: 0.1,
+    duration: 0.5,
+    ease: <span class="string">"back.out(1.7)"</span>
+  })
+
+  .<span class="function">add</span>(<span class="string">"bounce"</span>)
+  .<span class="function">to</span>(<span class="string">"#textDemo span"</span>, {
+    scale: 1.3,
+    stagger: 0.05,
+    duration: 0.3,
+    yoyo: <span class="keyword">true</span>,
+    repeat: 1
+  });
+            </div>
+        </div>
+
+        <!-- Demo Section 3: Particle System -->
+        <div class="demo-section">
+            <h2>Demo 3: Particle Animation</h2>
+            <p>A timeline controlling multiple elements simultaneously. Great for performance testing with FPS monitor.</p>
+
+            <div class="animation-stage" id="stage3">
+                <!-- Circles will be generated by JavaScript -->
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="startParticleTimeline()">▶ Start Particle Animation</button>
+            </div>
+
+            <div class="code-example">
+<span class="comment">// Particle system animation</span>
+<span class="keyword">const</span> ctaRoll = gsap.<span class="function">timeline</span>({ paused: <span class="keyword">true</span> });
+
+ctaRoll
+  .<span class="function">add</span>(<span class="string">"explode"</span>)
+  .<span class="function">to</span>(<span class="string">".circle"</span>, {
+    x: <span class="string">"random(-300, 300)"</span>,
+    y: <span class="string">"random(-200, 200)"</span>,
+    scale: <span class="string">"random(0.5, 2)"</span>,
+    opacity: 0.8,
+    duration: 1.5,
+    stagger: 0.02,
+    ease: <span class="string">"power2.out"</span>
+  })
+
+  .<span class="function">add</span>(<span class="string">"gather"</span>)
+  .<span class="function">to</span>(<span class="string">".circle"</span>, {
+    x: 0,
+    y: 0,
+    scale: 1,
+    duration: 1,
+    stagger: 0.02,
+    ease: <span class="string">"power2.inOut"</span>
+  });
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="demo-section">
+            <h2>✨ Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🎯 Multi-Timeline Control</h4>
+                    <p>Switch between multiple timelines (mainTL, rollTL, ctaRoll) on the fly. Debug complex animations with ease.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🏷️ Label Navigation</h4>
+                    <p>Jump instantly to labeled sections in your timeline. Visual markers show label positions on the scrubber.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>⚡ Speed Control</h4>
+                    <p>Slow down to 0.1x for frame-perfect timing or speed up to 4x to quickly preview long animations.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📍 Bookmarks</h4>
+                    <p>Mark problem areas or interesting moments. Quickly return to saved positions during development.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 FPS Monitor</h4>
+                    <p>Real-time performance monitoring. Identify performance bottlenecks with color-coded FPS display.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>⌨️ Keyboard Shortcuts</h4>
+                    <p>Efficient workflow with shortcuts for all major functions. Speed up your animation debugging process.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🎬 Frame Stepping</h4>
+                    <p>Step forward and backward frame-by-frame. Perfect for fine-tuning complex animation sequences.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💾 Timeline Export</h4>
+                    <p>Export timeline data including labels, durations, and structure for documentation purposes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Instructions -->
+        <div class="demo-section">
+            <h2>🚀 Quick Setup</h2>
+            <p>Getting started with GSAP Debug Controller is easy:</p>
+
+            <div class="code-example">
+<span class="comment">// 1. Include GSAP and the Debug Controller</span>
+&lt;<span class="keyword">script</span> src=<span class="string">"https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"</span>&gt;&lt;/<span class="keyword">script</span>&gt;
+&lt;<span class="keyword">script</span> src=<span class="string">"gsapDebug.js"</span>&gt;&lt;/<span class="keyword">script</span>&gt;
+
+<span class="comment">// 2. Create your timelines as usual</span>
+<span class="keyword">const</span> mainTL = gsap.<span class="function">timeline</span>({ paused: <span class="keyword">true</span> });
+mainTL.<span class="function">to</span>(<span class="string">".element"</span>, { x: 100 });
+
+<span class="comment">// 3. Initialize the debug controller (that's it!)</span>
+<span class="keyword">const</span> debugController = <span class="keyword">new</span> <span class="function">GSAPDebug</span>();
+
+<span class="comment">// The controller automatically detects timelines named:</span>
+<span class="comment">// mainTL, rollTL, ctaRoll, tl, timeline, masterTL</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="gsapDebug.js"></script>
+
+    <script>
+        // Global timelines
+        let mainTL, rollTL, ctaRoll;
+        let debugController;
+
+        // Initialize debug controller after a short delay
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                debugController = new GSAPDebug();
+            }, 100);
+        });
+
+        // Demo 1: Main Timeline with Labels
+        function startMainTimeline() {
+            // Kill existing timeline if it exists
+            if (mainTL) mainTL.kill();
+
+            // Reset boxes
+            gsap.set(['.box1', '.box2', '.box3', '.box4', '.box5'], {
+                x: 0,
+                y: 0,
+                rotation: 0,
+                scale: 1
+            });
+
+            // Create timeline with labels
+            mainTL = gsap.timeline({ paused: true });
+
+            mainTL
+                .add("intro")
+                .to('.box1', { x: 200, rotation: 360, duration: 1, ease: "power2.inOut" })
+
+                .add("sequence")
+                .to('.box2', { y: -100, scale: 1.5, duration: 0.8, ease: "back.out(1.7)" }, "sequence")
+                .to('.box3', { x: -200, rotation: -360, duration: 1, ease: "power2.inOut" }, "sequence+=0.2")
+
+                .add("buildup")
+                .to('.box4', { scale: 2, duration: 0.5, ease: "elastic.out(1, 0.3)" })
+
+                .add("finale")
+                .to('.box5', { y: 100, rotation: 720, duration: 1.2, ease: "power4.inOut" })
+                .to(['.box1', '.box2', '.box3', '.box4', '.box5'], {
+                    scale: 1.2,
+                    duration: 0.3,
+                    stagger: 0.05,
+                    yoyo: true,
+                    repeat: 1
+                });
+
+            // Refresh debug controller to detect new timeline
+            if (debugController) {
+                setTimeout(() => debugController.detectTimelines(), 100);
+            }
+
+            // Start playing
+            mainTL.play(0);
+        }
+
+        // Demo 2: Text Animation
+        function startTextTimeline() {
+            if (rollTL) rollTL.kill();
+
+            gsap.set('#textDemo span', { opacity: 0, y: 0, scale: 1 });
+
+            rollTL = gsap.timeline({ paused: true });
+
+            rollTL
+                .add("start")
+                .to('#textDemo span', {
+                    opacity: 1,
+                    y: -20,
+                    stagger: 0.1,
+                    duration: 0.5,
+                    ease: "back.out(1.7)"
+                })
+
+                .add("bounce")
+                .to('#textDemo span', {
+                    scale: 1.3,
+                    stagger: {
+                        each: 0.05,
+                        from: "center"
+                    },
+                    duration: 0.3,
+                    yoyo: true,
+                    repeat: 1,
+                    ease: "power2.inOut"
+                })
+
+                .add("wave")
+                .to('#textDemo span', {
+                    y: -30,
+                    stagger: {
+                        each: 0.1,
+                        yoyo: true,
+                        repeat: 1
+                    },
+                    duration: 0.4,
+                    ease: "sine.inOut"
+                })
+
+                .add("finale")
+                .to('#textDemo span', {
+                    rotation: 360,
+                    stagger: 0.05,
+                    duration: 0.6,
+                    ease: "back.out(2)"
+                });
+
+            if (debugController) {
+                setTimeout(() => debugController.detectTimelines(), 100);
+            }
+
+            rollTL.play(0);
+        }
+
+        // Demo 3: Particle Animation
+        function startParticleTimeline() {
+            const stage = document.getElementById('stage3');
+
+            // Create particles if they don't exist
+            if (stage.children.length === 0) {
+                for (let i = 0; i < 30; i++) {
+                    const circle = document.createElement('div');
+                    circle.className = 'circle';
+                    stage.appendChild(circle);
+                }
+            }
+
+            if (ctaRoll) ctaRoll.kill();
+
+            gsap.set('.circle', { x: 0, y: 0, scale: 1, opacity: 1 });
+
+            ctaRoll = gsap.timeline({ paused: true });
+
+            ctaRoll
+                .add("explode")
+                .to('.circle', {
+                    x: "random(-300, 300)",
+                    y: "random(-200, 200)",
+                    scale: "random(0.5, 2)",
+                    opacity: 0.8,
+                    duration: 1.5,
+                    stagger: 0.02,
+                    ease: "power2.out"
+                })
+
+                .add("spin")
+                .to('.circle', {
+                    rotation: "random(-360, 360)",
+                    duration: 1,
+                    stagger: 0.02,
+                    ease: "none"
+                }, "explode")
+
+                .add("gather")
+                .to('.circle', {
+                    x: 0,
+                    y: 0,
+                    scale: 1,
+                    rotation: 0,
+                    opacity: 1,
+                    duration: 1,
+                    stagger: 0.02,
+                    ease: "power2.inOut"
+                })
+
+                .add("pulse")
+                .to('.circle', {
+                    scale: 1.5,
+                    duration: 0.3,
+                    stagger: {
+                        each: 0.02,
+                        from: "center"
+                    },
+                    yoyo: true,
+                    repeat: 1,
+                    ease: "sine.inOut"
+                });
+
+            if (debugController) {
+                setTimeout(() => debugController.detectTimelines(), 100);
+            }
+
+            ctaRoll.play(0);
+        }
+    </script>
+</body>
+</html>

@@ -627,26 +627,98 @@ class GSAPDebug {
         const select = document.getElementById('timelineSelect');
         select.innerHTML = '';
         this.timelines = {};
+        const foundTimelines = new Map(); // Use Map to track unique timelines
 
-        // Check for common timeline variables
-        const commonNames = ['mainTL', 'rollTL', 'ctaRoll', 'tl', 'timeline', 'masterTL'];
+        // Method 1: Scan ALL window properties for GSAP timeline instances
+        for (const prop in window) {
+            try {
+                const obj = window[prop];
 
-        commonNames.forEach(name => {
-            if (window[name] && typeof window[name].progress === 'function') {
-                this.timelines[name] = window[name];
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = `${name} (${window[name].duration().toFixed(2)}s)`;
-                select.appendChild(option);
+                // Check if it's a GSAP timeline instance
+                if (obj && typeof obj === 'object') {
+                    // GSAP 3.x check
+                    if (typeof gsap !== 'undefined' && gsap.core && obj instanceof gsap.core.Timeline) {
+                        if (!foundTimelines.has(obj)) {
+                            foundTimelines.set(obj, prop);
+                        }
+                    }
+                    // Legacy GSAP 2.x check (TimelineMax/TimelineLite)
+                    else if (typeof TimelineMax !== 'undefined' && obj instanceof TimelineMax) {
+                        if (!foundTimelines.has(obj)) {
+                            foundTimelines.set(obj, prop);
+                        }
+                    }
+                    else if (typeof TimelineLite !== 'undefined' && obj instanceof TimelineLite) {
+                        if (!foundTimelines.has(obj)) {
+                            foundTimelines.set(obj, prop);
+                        }
+                    }
+                }
+            } catch (e) {
+                // Skip properties that can't be accessed
+                continue;
             }
+        }
+
+        // Method 2: Access GSAP's internal globalTimeline to find nested timelines
+        if (typeof gsap !== 'undefined' && gsap.globalTimeline) {
+            try {
+                const children = gsap.globalTimeline.getChildren(true, true, true);
+                children.forEach((child, index) => {
+                    if (child instanceof gsap.core.Timeline && !foundTimelines.has(child)) {
+                        // Try to find the variable name for this timeline
+                        let varName = null;
+                        for (const prop in window) {
+                            try {
+                                if (window[prop] === child) {
+                                    varName = prop;
+                                    break;
+                                }
+                            } catch (e) {
+                                continue;
+                            }
+                        }
+                        foundTimelines.set(child, varName || `Timeline_${index}`);
+                    }
+                });
+            } catch (e) {
+                console.log('Could not access GSAP globalTimeline:', e);
+            }
+        }
+
+        // Convert Map to timelines object and populate dropdown
+        const timelineEntries = Array.from(foundTimelines.entries()).map(([timeline, name]) => ({
+            timeline,
+            name,
+            duration: timeline.duration ? timeline.duration() : 0,
+            tweenCount: timeline.getChildren ? timeline.getChildren(true, true, true).length : 0
+        }));
+
+        // Sort by tween count (most complex first) then by name
+        timelineEntries.sort((a, b) => {
+            if (b.tweenCount !== a.tweenCount) {
+                return b.tweenCount - a.tweenCount;
+            }
+            return a.name.localeCompare(b.name);
+        });
+
+        // Populate the dropdown
+        timelineEntries.forEach((entry) => {
+            this.timelines[entry.name] = entry.timeline;
+            const option = document.createElement('option');
+            option.value = entry.name;
+            option.textContent = `${entry.name} (${entry.duration.toFixed(2)}s, ${entry.tweenCount} tweens)`;
+            select.appendChild(option);
         });
 
         // Auto-select first timeline
         if (Object.keys(this.timelines).length > 0) {
             select.value = Object.keys(this.timelines)[0];
             this.switchTimeline(select.value);
+            console.log(`%c✅ GSAP Debug: Found ${Object.keys(this.timelines).length} timeline(s)`, 'color: #A6E22E; font-weight: bold;');
+            console.log('%cTimelines detected:', 'color: #66D9EF;', Object.keys(this.timelines));
         } else {
-            select.innerHTML = '<option>No timelines found</option>';
+            select.innerHTML = '<option>No timelines found (searching...)</option>';
             setTimeout(() => this.detectTimelines(), 1000);
         }
     }
