@@ -470,12 +470,16 @@ mainTL.<span class="function">to</span>(<span class="string">".element"</span>, 
         let mainTL, rollTL, ctaRoll;
         let debugController;
 
-        // Initialize debug controller after a short delay
-        window.addEventListener('load', () => {
-            setTimeout(() => {
+        // Helper function to ensure debug controller exists
+        function ensureDebugController() {
+            if (!debugController) {
                 debugController = new GSAPDebug();
-            }, 100);
-        });
+            } else {
+                // Reset detection counter and refresh
+                debugController.detectionAttempts = 0;
+                debugController.detectTimelines();
+            }
+        }
 
         // Demo 1: Main Timeline with Labels
         function startMainTimeline() {
@@ -514,10 +518,8 @@ mainTL.<span class="function">to</span>(<span class="string">".element"</span>, 
                     repeat: 1
                 });
 
-            // Refresh debug controller to detect new timeline
-            if (debugController) {
-                setTimeout(() => debugController.detectTimelines(), 100);
-            }
+            // Ensure debug controller exists and refresh timeline list
+            setTimeout(() => ensureDebugController(), 100);
 
             // Start playing
             mainTL.play(0);
@@ -574,9 +576,8 @@ mainTL.<span class="function">to</span>(<span class="string">".element"</span>, 
                     ease: "back.out(2)"
                 });
 
-            if (debugController) {
-                setTimeout(() => debugController.detectTimelines(), 100);
-            }
+            // Ensure debug controller exists and refresh timeline list
+            setTimeout(() => ensureDebugController(), 100);
 
             rollTL.play(0);
         }
@@ -645,9 +646,8 @@ mainTL.<span class="function">to</span>(<span class="string">".element"</span>, 
                     ease: "sine.inOut"
                 });
 
-            if (debugController) {
-                setTimeout(() => debugController.detectTimelines(), 100);
-            }
+            // Ensure debug controller exists and refresh timeline list
+            setTimeout(() => ensureDebugController(), 100);
 
             ctaRoll.play(0);
         }

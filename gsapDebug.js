@@ -24,6 +24,12 @@
 
 class GSAPDebug {
     constructor() {
+        // Prevent multiple instances (singleton pattern)
+        if (GSAPDebug.instance) {
+            console.log('%c⚠️ GSAP Debug: Instance already exists, using existing panel', 'color: #E6DB74;');
+            return GSAPDebug.instance;
+        }
+
         // Core properties
         this.mainDiv = null;
         this.activeTimeline = null;
@@ -45,10 +51,14 @@ class GSAPDebug {
         // Performance monitoring
         this.fps = 0;
         this.lastTime = performance.now();
+        this.fpsInterval = null;
 
         // Detection retry management
         this.detectionAttempts = 0;
         this.maxDetectionAttempts = 5;
+
+        // Store instance
+        GSAPDebug.instance = this;
 
         // Initialize
         this.init();
@@ -959,7 +969,7 @@ class GSAPDebug {
     }
 
     startPerformanceMonitor() {
-        setInterval(() => {
+        this.fpsInterval = setInterval(() => {
             const now = performance.now();
             const delta = now - this.lastTime;
             this.fps = Math.round(1000 / delta);
@@ -981,9 +991,21 @@ class GSAPDebug {
 
     // Public API
     destroy() {
+        // Clear performance monitor interval
+        if (this.fpsInterval) {
+            clearInterval(this.fpsInterval);
+            this.fpsInterval = null;
+        }
+
+        // Remove DOM element
         if (this.mainDiv) {
             this.mainDiv.remove();
         }
+
+        // Clear singleton instance
+        GSAPDebug.instance = null;
+
+        console.log('%c✅ GSAP Debug: Panel destroyed', 'color: #A6E22E;');
     }
 
     // Legacy compatibility
