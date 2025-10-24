@@ -46,6 +46,10 @@ class GSAPDebug {
         this.fps = 0;
         this.lastTime = performance.now();
 
+        // Detection retry management
+        this.detectionAttempts = 0;
+        this.maxDetectionAttempts = 5;
+
         // Initialize
         this.init();
     }
@@ -441,6 +445,9 @@ class GSAPDebug {
                 <select class="timeline-selector" id="timelineSelect">
                     <option value="">Detecting...</option>
                 </select>
+                <button class="gsap-btn" id="refreshBtn" title="Refresh Timeline List">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
             </div>
 
             <div class="gsap-section">
@@ -558,6 +565,12 @@ class GSAPDebug {
         // Timeline selector
         document.getElementById('timelineSelect').addEventListener('change', (e) => {
             this.switchTimeline(e.target.value);
+        });
+
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            this.detectionAttempts = 0; // Reset counter when manually refreshing
+            this.detectTimelines();
         });
 
         // Playback controls
@@ -713,13 +726,22 @@ class GSAPDebug {
 
         // Auto-select first timeline
         if (Object.keys(this.timelines).length > 0) {
+            this.detectionAttempts = 0; // Reset counter on success
             select.value = Object.keys(this.timelines)[0];
             this.switchTimeline(select.value);
             console.log(`%c✅ GSAP Debug: Found ${Object.keys(this.timelines).length} timeline(s)`, 'color: #A6E22E; font-weight: bold;');
             console.log('%cTimelines detected:', 'color: #66D9EF;', Object.keys(this.timelines));
         } else {
-            select.innerHTML = '<option>No timelines found (searching...)</option>';
-            setTimeout(() => this.detectTimelines(), 1000);
+            this.detectionAttempts++;
+
+            if (this.detectionAttempts < this.maxDetectionAttempts) {
+                select.innerHTML = `<option>No timelines found (attempt ${this.detectionAttempts}/${this.maxDetectionAttempts})</option>`;
+                setTimeout(() => this.detectTimelines(), 1000);
+            } else {
+                select.innerHTML = '<option>No timelines found - Create a timeline and refresh</option>';
+                console.log('%c⚠️ GSAP Debug: No timelines detected after multiple attempts', 'color: #E6DB74; font-weight: bold;');
+                console.log('%cCreate a timeline (e.g., mainTL, rollTL, tl) and click the refresh button', 'color: #66D9EF;');
+            }
         }
     }
 
