@@ -704,6 +704,10 @@ class GSAPDebug {
             btn.onclick = () => {
                 this.activeTimeline.pause();
                 this.activeTimeline.seek(name);
+                this.playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                // Update slider position
+                const progress = this.activeTimeline.progress();
+                this.slider.value = progress * 100;
                 this.updateTimeDisplay();
             };
             labelButtons.appendChild(btn);
