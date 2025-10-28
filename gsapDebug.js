@@ -13,10 +13,8 @@
  * - Label navigation with visual markers
  * - Playback speed control (0.1x - 4x)
  * - Frame-by-frame stepping
- * - Animation bookmarks (save problem areas for later)
  * - Performance monitoring (real-time FPS)
  * - Keyboard shortcuts
- * - Timeline export (document your timing)
  *
  * @version 2.0
  * @author Enhanced Edition
@@ -28,7 +26,6 @@ class GSAPDebug {
         this.mainDiv = null;
         this.activeTimeline = null;
         this.timelines = {};
-        this.bookmarks = [];
         this.isExpanded = true;
 
         // UI elements
@@ -359,43 +356,6 @@ class GSAPDebug {
                 color: #ffffff;
             }
 
-            .bookmark-list {
-                display: flex;
-                gap: 4px;
-                flex-wrap: wrap;
-                max-width: 500px;
-            }
-
-            .bookmark-item {
-                padding: 4px 8px;
-                font-size: 10px;
-                font-weight: 500;
-                background: #f8f9fa;
-                border: 1px solid #dee2e6;
-                color: #495057;
-                border-radius: 4px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                transition: all 0.15s;
-            }
-
-            .bookmark-item:hover {
-                background: #e9ecef;
-            }
-
-            .bookmark-item .remove {
-                margin-left: 2px;
-                opacity: 0.6;
-                cursor: pointer;
-            }
-
-            .bookmark-item .remove:hover {
-                opacity: 1;
-                color: #000000;
-            }
-
             .shortcuts-help {
                 font-size: 9px;
                 color: #868e96;
@@ -503,31 +463,12 @@ class GSAPDebug {
             </div>
         `;
 
-        // Row 4: Bookmarks & export
+        // Row 4: Help text
         const row4 = document.createElement('div');
         row4.className = 'gsap-row';
         row4.innerHTML = `
-            <div class="gsap-section">
-                <button class="gsap-btn" id="addBookmarkBtn" title="Bookmark Current Position (B)">
-                    <i class="fa-solid fa-bookmark"></i> Bookmark
-                </button>
-            </div>
-            <div class="gsap-section" style="flex: 1;">
-                <div class="bookmark-list" id="bookmarkList"></div>
-            </div>
-            <div class="gsap-section">
-                <button class="gsap-btn" id="exportBtn" title="Export Timeline Data">
-                    <i class="fa-solid fa-download"></i> Export
-                </button>
-            </div>
-        `;
-
-        // Row 5: Help text
-        const row5 = document.createElement('div');
-        row5.className = 'gsap-row';
-        row5.innerHTML = `
             <div class="shortcuts-help">
-                <i class="fa-solid fa-keyboard"></i> Space=Play/Pause | R=Replay | ←→=Frame Step | B=Bookmark | D=Minimize | 1-6=Speed
+                <i class="fa-solid fa-keyboard"></i> Space=Play/Pause | R=Replay | ←→=Frame Step | D=Minimize | 1-6=Speed
             </div>
         `;
 
@@ -535,7 +476,6 @@ class GSAPDebug {
         content.appendChild(row2);
         content.appendChild(row3);
         content.appendChild(row4);
-        content.appendChild(row5);
 
         this.mainDiv.appendChild(header);
         this.mainDiv.appendChild(content);
@@ -580,12 +520,6 @@ class GSAPDebug {
 
         // Slider
         this.slider.addEventListener('input', (e) => this.onSliderInput(e));
-
-        // Bookmarks
-        document.getElementById('addBookmarkBtn').addEventListener('click', () => this.addBookmark());
-
-        // Export
-        document.getElementById('exportBtn').addEventListener('click', () => this.exportTimeline());
     }
 
     setupKeyboardShortcuts() {
@@ -609,10 +543,6 @@ class GSAPDebug {
                 case 'arrowright':
                     e.preventDefault();
                     this.stepFrame(1);
-                    break;
-                case 'b':
-                    e.preventDefault();
-                    this.addBookmark();
                     break;
                 case 'd':
                     e.preventDefault();
@@ -868,80 +798,6 @@ class GSAPDebug {
         const current = this.activeTimeline.time().toFixed(2);
         const total = this.activeTimeline.duration().toFixed(2);
         document.getElementById('timeDisplay').textContent = `${current} / ${total}s`;
-    }
-
-    addBookmark() {
-        if (!this.activeTimeline) return;
-
-        const time = this.activeTimeline.time();
-        const name = prompt('Bookmark name (describe what needs fixing):', `Mark ${this.bookmarks.length + 1}`);
-
-        if (name) {
-            this.bookmarks.push({ name, time });
-            this.updateBookmarks();
-        }
-    }
-
-    updateBookmarks() {
-        const list = document.getElementById('bookmarkList');
-        list.innerHTML = '';
-
-        if (this.bookmarks.length === 0) {
-            list.innerHTML = '<span style="color: #666; font-size: 10px;">No bookmarks yet</span>';
-            return;
-        }
-
-        this.bookmarks.forEach((bookmark, index) => {
-            const item = document.createElement('div');
-            item.className = 'bookmark-item';
-            item.innerHTML = `
-                <i class="fa-solid fa-bookmark"></i>
-                <span>${bookmark.name} (${bookmark.time.toFixed(2)}s)</span>
-                <i class="fa-solid fa-xmark remove"></i>
-            `;
-
-            item.addEventListener('click', (e) => {
-                if (e.target.classList.contains('remove')) {
-                    this.bookmarks.splice(index, 1);
-                    this.updateBookmarks();
-                } else {
-                    this.activeTimeline.pause();
-                    this.activeTimeline.time(bookmark.time);
-                    this.updateTimeDisplay();
-                }
-            });
-
-            list.appendChild(item);
-        });
-    }
-
-    exportTimeline() {
-        if (!this.activeTimeline) return;
-
-        const data = {
-            duration: this.activeTimeline.duration(),
-            labels: this.activeTimeline.labels,
-            bookmarks: this.bookmarks,
-            children: []
-        };
-
-        // Export children animations
-        const children = this.activeTimeline.getChildren(false, true, true);
-        children.forEach(child => {
-            data.children.push({
-                type: child.constructor.name,
-                startTime: child.startTime(),
-                duration: child.duration(),
-                targets: child.targets ? child.targets() : []
-            });
-        });
-
-        console.log('%c📊 Timeline Export', 'font-size: 16px; font-weight: bold; color: #ff2b6f;');
-        console.log('%cTimeline Data:', 'font-weight: bold; color: #00d4ff;', data);
-        console.log('%cCopy-ready JSON:', 'font-weight: bold; color: #00ff88;');
-        console.log(JSON.stringify(data, null, 2));
-
-        alert('✅ Timeline data exported to console!\n\nCheck the browser console to see:\n- Duration & labels\n- Your bookmarks\n- All animations and their timings');
     }
 
     startPerformanceMonitor() {
