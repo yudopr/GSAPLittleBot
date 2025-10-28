@@ -73,15 +73,15 @@ class GSAPDebug {
         style.textContent = `
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-            /* Clean White Minimalist Theme with Cyan Accent */
+            /* Monochromatic White Theme */
             #gsapDebug {
                 position: fixed;
                 bottom: 0;
                 left: 0;
                 right: 0;
                 background: #ffffff;
-                border-top: 2px solid #66D9EF;
-                color: #2c3e50;
+                border-top: 2px solid #000000;
+                color: #000000;
                 font-family: 'Inter', sans-serif;
                 font-size: 12px;
                 z-index: 999999;
@@ -107,7 +107,7 @@ class GSAPDebug {
             .gsap-title {
                 font-weight: 600;
                 font-size: 12px;
-                color: #66D9EF;
+                color: #000000;
                 display: flex;
                 align-items: center;
                 gap: 8px;
@@ -116,7 +116,7 @@ class GSAPDebug {
 
             .gsap-title i {
                 font-size: 14px;
-                color: #66D9EF;
+                color: #000000;
             }
 
             .gsap-header-controls {
@@ -174,9 +174,9 @@ class GSAPDebug {
             }
 
             .gsap-btn:hover {
-                background: #f8f9fa;
-                border-color: #66D9EF;
-                color: #66D9EF;
+                background: #000000;
+                border-color: #000000;
+                color: #ffffff;
             }
 
             .gsap-btn:active {
@@ -184,8 +184,8 @@ class GSAPDebug {
             }
 
             .gsap-btn.active {
-                background: #66D9EF;
-                border-color: #66D9EF;
+                background: #000000;
+                border-color: #000000;
                 color: #ffffff;
             }
 
@@ -195,9 +195,9 @@ class GSAPDebug {
             }
 
             .gsap-btn.danger:hover {
-                background: #f8f9fa;
-                border-color: #ff6b6b;
-                color: #ff6b6b;
+                background: #000000;
+                border-color: #000000;
+                color: #ffffff;
             }
 
             .gsap-btn i {
@@ -218,8 +218,8 @@ class GSAPDebug {
 
             .timeline-selector:focus {
                 outline: none;
-                border-color: #66D9EF;
-                box-shadow: 0 0 0 2px rgba(102, 217, 239, 0.1);
+                border-color: #000000;
+                box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
             }
 
             .slider-container {
@@ -242,14 +242,14 @@ class GSAPDebug {
 
             .timeline-slider::-webkit-slider-thumb {
                 -webkit-appearance: none;
-                width: 14px;
-                height: 14px;
+                width: 16px;
+                height: 16px;
                 background: #66D9EF;
-                border: 2px solid #ffffff;
+                border: 2px solid #000000;
                 border-radius: 50%;
                 cursor: pointer;
                 transition: transform 0.1s;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             }
 
             .timeline-slider::-webkit-slider-thumb:hover {
@@ -257,13 +257,13 @@ class GSAPDebug {
             }
 
             .timeline-slider::-moz-range-thumb {
-                width: 14px;
-                height: 14px;
+                width: 16px;
+                height: 16px;
                 background: #66D9EF;
-                border: 2px solid #ffffff;
+                border: 2px solid #000000;
                 border-radius: 50%;
                 cursor: pointer;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             }
 
             .timeline-labels {
@@ -277,19 +277,19 @@ class GSAPDebug {
 
             .timeline-label-marker {
                 font-size: 9px;
-                color: #66D9EF;
+                color: #495057;
                 background: #ffffff;
                 padding: 1px 4px;
                 border-radius: 2px;
                 white-space: nowrap;
-                border: 1px solid #e9ecef;
+                border: 1px solid #dee2e6;
                 font-weight: 500;
             }
 
             .time-display {
                 font-family: 'Inter', sans-serif;
                 font-size: 12px;
-                color: #66D9EF;
+                color: #000000;
                 font-weight: 600;
                 min-width: 85px;
                 text-align: center;
@@ -312,22 +312,22 @@ class GSAPDebug {
             }
 
             .fps-display.good {
-                color: #66D9EF;
+                color: #000000;
             }
 
             .fps-display.warning {
-                color: #ffa94d;
+                color: #6c757d;
             }
 
             .fps-display.bad {
-                color: #ff6b6b;
+                color: #868e96;
             }
 
             .speed-indicator {
                 font-family: 'Inter', sans-serif;
                 font-size: 12px;
                 color: #ffffff;
-                background: #66D9EF;
+                background: #000000;
                 padding: 4px 10px;
                 border-radius: 4px;
                 font-weight: 600;
@@ -346,15 +346,16 @@ class GSAPDebug {
                 font-size: 10px;
                 font-weight: 500;
                 background: #ffffff;
-                border: 1px solid #66D9EF;
-                color: #66D9EF;
+                border: 1px solid #dee2e6;
+                color: #495057;
                 border-radius: 4px;
                 cursor: pointer;
                 transition: all 0.15s;
             }
 
             .label-btn:hover {
-                background: #66D9EF;
+                background: #000000;
+                border-color: #000000;
                 color: #ffffff;
             }
 
@@ -369,9 +370,9 @@ class GSAPDebug {
                 padding: 4px 8px;
                 font-size: 10px;
                 font-weight: 500;
-                background: #fff9db;
-                border: 1px solid #ffd43b;
-                color: #f59f00;
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                color: #495057;
                 border-radius: 4px;
                 cursor: pointer;
                 display: flex;
@@ -381,7 +382,7 @@ class GSAPDebug {
             }
 
             .bookmark-item:hover {
-                background: #ffec99;
+                background: #e9ecef;
             }
 
             .bookmark-item .remove {
@@ -392,7 +393,7 @@ class GSAPDebug {
 
             .bookmark-item .remove:hover {
                 opacity: 1;
-                color: #ff6b6b;
+                color: #000000;
             }
 
             .shortcuts-help {
