@@ -267,7 +267,7 @@ class GSAPDebug {
                 position: absolute;
                 width: 100%;
                 bottom: 0;
-                height: 0;
+                height: 10px;
                 pointer-events: none;
             }
 
@@ -283,6 +283,15 @@ class GSAPDebug {
                 font-weight: 500;
                 transform: translateX(-50%);
                 top: 8px;
+                cursor: pointer;
+                pointer-events: auto;
+                transition: all 0.15s ease;
+            }
+
+            .timeline-label-marker:hover {
+                background: #000000;
+                color: #ffffff;
+                border-color: #000000;
             }
 
             .time-display {
@@ -714,6 +723,11 @@ class GSAPDebug {
             marker.className = 'timeline-label-marker';
             marker.style.left = `${position}%`;
             marker.textContent = name;
+            marker.onclick = () => {
+                this.activeTimeline.pause();
+                this.activeTimeline.seek(name);
+                this.updateTimeDisplay();
+            };
             labelMarkers.appendChild(marker);
         });
     }
