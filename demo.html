@@ -466,35 +466,27 @@ mainTL.<span class="function">to</span>(<span class="string">".element"</span>, 
     <script src="gsapDebug.js"></script>
 
     <script>
-        // Global timelines
+        // Global timelines - pre-create them so debug panel can detect them
         let mainTL, rollTL, ctaRoll;
-        let debugController;
 
-        // Helper function to ensure debug controller exists
-        function ensureDebugController() {
-            if (!debugController) {
-                debugController = new GSAPDebug();
-            } else {
-                // Reset detection counter and refresh
-                debugController.detectionAttempts = 0;
-                debugController.detectTimelines();
-            }
-        }
+        // Initialize timelines on page load (paused, so they can be detected)
+        window.addEventListener('load', () => {
+            // Create all timelines immediately (paused) for detection
+            createMainTimeline();
+            createTextTimeline();
+            createParticleTimeline();
+
+            // Give debug panel time to detect them
+            setTimeout(() => {
+                if (window.gsapDebug) {
+                    window.gsapDebug.detectTimelines();
+                }
+            }, 600);
+        });
 
         // Demo 1: Main Timeline with Labels
-        function startMainTimeline() {
-            // Kill existing timeline if it exists
-            if (mainTL) mainTL.kill();
-
-            // Reset boxes
-            gsap.set(['.box1', '.box2', '.box3', '.box4', '.box5'], {
-                x: 0,
-                y: 0,
-                rotation: 0,
-                scale: 1
-            });
-
-            // Create timeline with labels
+        function createMainTimeline() {
+            // Create timeline with labels (paused)
             mainTL = gsap.timeline({ paused: true });
 
             mainTL
@@ -517,20 +509,24 @@ mainTL.<span class="function">to</span>(<span class="string">".element"</span>, 
                     yoyo: true,
                     repeat: 1
                 });
+        }
 
-            // Ensure debug controller exists and refresh timeline list
-            setTimeout(() => ensureDebugController(), 100);
+        function startMainTimeline() {
+            // Reset elements to initial state
+            gsap.set(['.box1', '.box2', '.box3', '.box4', '.box5'], {
+                x: 0,
+                y: 0,
+                rotation: 0,
+                scale: 1
+            });
 
-            // Start playing
-            mainTL.play(0);
+            // Play from start
+            mainTL.restart();
         }
 
         // Demo 2: Text Animation
-        function startTextTimeline() {
-            if (rollTL) rollTL.kill();
-
-            gsap.set('#textDemo span', { opacity: 0, y: 0, scale: 1 });
-
+        function createTextTimeline() {
+            // Create timeline (paused)
             rollTL = gsap.timeline({ paused: true });
 
             rollTL
@@ -575,30 +571,28 @@ mainTL.<span class="function">to</span>(<span class="string">".element"</span>, 
                     duration: 0.6,
                     ease: "back.out(2)"
                 });
+        }
 
-            // Ensure debug controller exists and refresh timeline list
-            setTimeout(() => ensureDebugController(), 100);
+        function startTextTimeline() {
+            // Reset text to initial state
+            gsap.set('#textDemo span', { opacity: 0, y: 0, scale: 1, rotation: 0 });
 
-            rollTL.play(0);
+            // Play from start
+            rollTL.restart();
         }
 
         // Demo 3: Particle Animation
-        function startParticleTimeline() {
+        function createParticleTimeline() {
             const stage = document.getElementById('stage3');
 
-            // Create particles if they don't exist
-            if (stage.children.length === 0) {
-                for (let i = 0; i < 30; i++) {
-                    const circle = document.createElement('div');
-                    circle.className = 'circle';
-                    stage.appendChild(circle);
-                }
+            // Create particles
+            for (let i = 0; i < 30; i++) {
+                const circle = document.createElement('div');
+                circle.className = 'circle';
+                stage.appendChild(circle);
             }
 
-            if (ctaRoll) ctaRoll.kill();
-
-            gsap.set('.circle', { x: 0, y: 0, scale: 1, opacity: 1 });
-
+            // Create timeline (paused)
             ctaRoll = gsap.timeline({ paused: true });
 
             ctaRoll
@@ -645,11 +639,14 @@ mainTL.<span class="function">to</span>(<span class="string">".element"</span>, 
                     repeat: 1,
                     ease: "sine.inOut"
                 });
+        }
 
-            // Ensure debug controller exists and refresh timeline list
-            setTimeout(() => ensureDebugController(), 100);
+        function startParticleTimeline() {
+            // Reset particles to initial state
+            gsap.set('.circle', { x: 0, y: 0, scale: 1, rotation: 0, opacity: 1 });
 
-            ctaRoll.play(0);
+            // Play from start
+            ctaRoll.restart();
         }
     </script>
 </body>

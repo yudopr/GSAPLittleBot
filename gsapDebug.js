@@ -24,12 +24,6 @@
 
 class GSAPDebug {
     constructor() {
-        // Prevent multiple instances (singleton pattern)
-        if (GSAPDebug.instance) {
-            console.log('%c⚠️ GSAP Debug: Instance already exists, using existing panel', 'color: #E6DB74;');
-            return GSAPDebug.instance;
-        }
-
         // Core properties
         this.mainDiv = null;
         this.activeTimeline = null;
@@ -48,18 +42,6 @@ class GSAPDebug {
         this.speeds = [0.1, 0.25, 0.5, 1, 2, 4];
         this.currentSpeedIndex = 3;
 
-        // Performance monitoring
-        this.fps = 0;
-        this.lastTime = performance.now();
-        this.fpsInterval = null;
-
-        // Detection retry management
-        this.detectionAttempts = 0;
-        this.maxDetectionAttempts = 5;
-
-        // Store instance
-        GSAPDebug.instance = this;
-
         // Initialize
         this.init();
     }
@@ -67,12 +49,14 @@ class GSAPDebug {
     init() {
         this.loadFontAwesome();
         this.createStyles();
-        this.buildPanel();
+        this.buildPanel(); // Build panel FIRST so elements exist
         this.setupKeyboardShortcuts();
-        this.startPerformanceMonitor();
 
         // Delayed timeline detection
         setTimeout(() => this.detectTimelines(), 500);
+
+        // Start performance monitor AFTER panel is built
+        this.startPerformanceMonitor();
     }
 
     loadFontAwesome() {
@@ -87,21 +71,21 @@ class GSAPDebug {
     createStyles() {
         const style = document.createElement('style');
         style.textContent = `
-            @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-            /* Monokai-inspired Minimalist Theme */
+            /* Clean White Minimalist Theme with Cyan Accent */
             #gsapDebug {
                 position: fixed;
                 bottom: 0;
                 left: 0;
                 right: 0;
-                background: #272822;
+                background: #ffffff;
                 border-top: 2px solid #66D9EF;
-                color: #F8F8F2;
-                font-family: 'Fira Code', monospace;
+                color: #2c3e50;
+                font-family: 'Inter', sans-serif;
                 font-size: 12px;
                 z-index: 999999;
-                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
                 transition: transform 0.2s ease;
                 user-select: none;
             }
@@ -115,8 +99,8 @@ class GSAPDebug {
                 justify-content: space-between;
                 align-items: center;
                 padding: 6px 12px;
-                background: #1E1F1C;
-                border-bottom: 1px solid #3E3D32;
+                background: #f8f9fa;
+                border-bottom: 1px solid #e9ecef;
                 cursor: move;
             }
 
@@ -127,12 +111,12 @@ class GSAPDebug {
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
             }
 
             .gsap-title i {
                 font-size: 14px;
-                color: #A6E22E;
+                color: #66D9EF;
             }
 
             .gsap-header-controls {
@@ -145,7 +129,7 @@ class GSAPDebug {
                 display: flex;
                 flex-direction: column;
                 gap: 8px;
-                background: #272822;
+                background: #ffffff;
             }
 
             .gsap-row {
@@ -156,9 +140,9 @@ class GSAPDebug {
             }
 
             .gsap-section {
-                background: #3E3D32;
-                border: 1px solid #49483E;
-                border-radius: 3px;
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
                 padding: 6px 10px;
                 display: flex;
                 align-items: center;
@@ -167,16 +151,18 @@ class GSAPDebug {
 
             .gsap-section-label {
                 font-size: 10px;
-                color: #75715E;
+                color: #868e96;
                 font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
             }
 
             .gsap-btn {
-                background: #3E3D32;
-                border: 1px solid #49483E;
-                color: #F8F8F2;
+                background: #ffffff;
+                border: 1px solid #dee2e6;
+                color: #495057;
                 padding: 5px 10px;
-                border-radius: 3px;
+                border-radius: 4px;
                 cursor: pointer;
                 transition: all 0.15s ease;
                 font-size: 11px;
@@ -188,8 +174,9 @@ class GSAPDebug {
             }
 
             .gsap-btn:hover {
-                background: #49483E;
+                background: #f8f9fa;
                 border-color: #66D9EF;
+                color: #66D9EF;
             }
 
             .gsap-btn:active {
@@ -199,16 +186,18 @@ class GSAPDebug {
             .gsap-btn.active {
                 background: #66D9EF;
                 border-color: #66D9EF;
-                color: #272822;
+                color: #ffffff;
             }
 
             .gsap-btn.danger {
-                border-color: #F92672;
+                border-color: #dee2e6;
+                color: #495057;
             }
 
             .gsap-btn.danger:hover {
-                background: #F92672;
-                color: #F8F8F2;
+                background: #f8f9fa;
+                border-color: #ff6b6b;
+                color: #ff6b6b;
             }
 
             .gsap-btn i {
@@ -217,10 +206,10 @@ class GSAPDebug {
 
             .timeline-selector {
                 padding: 5px 10px;
-                background: #3E3D32;
-                border: 1px solid #49483E;
-                border-radius: 3px;
-                color: #F8F8F2;
+                background: #ffffff;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                color: #495057;
                 font-size: 11px;
                 font-weight: 500;
                 cursor: pointer;
@@ -230,6 +219,7 @@ class GSAPDebug {
             .timeline-selector:focus {
                 outline: none;
                 border-color: #66D9EF;
+                box-shadow: 0 0 0 2px rgba(102, 217, 239, 0.1);
             }
 
             .slider-container {
@@ -242,7 +232,7 @@ class GSAPDebug {
             .timeline-slider {
                 width: 100%;
                 height: 4px;
-                background: #49483E;
+                background: #e9ecef;
                 border-radius: 2px;
                 outline: none;
                 cursor: pointer;
@@ -255,10 +245,11 @@ class GSAPDebug {
                 width: 14px;
                 height: 14px;
                 background: #66D9EF;
-                border: 2px solid #F8F8F2;
+                border: 2px solid #ffffff;
                 border-radius: 50%;
                 cursor: pointer;
                 transition: transform 0.1s;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
 
             .timeline-slider::-webkit-slider-thumb:hover {
@@ -269,9 +260,10 @@ class GSAPDebug {
                 width: 14px;
                 height: 14px;
                 background: #66D9EF;
-                border: 2px solid #F8F8F2;
+                border: 2px solid #ffffff;
                 border-radius: 50%;
                 cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
 
             .timeline-labels {
@@ -285,58 +277,59 @@ class GSAPDebug {
 
             .timeline-label-marker {
                 font-size: 9px;
-                color: #A6E22E;
-                background: #3E3D32;
+                color: #66D9EF;
+                background: #ffffff;
                 padding: 1px 4px;
                 border-radius: 2px;
                 white-space: nowrap;
-                border: 1px solid #49483E;
+                border: 1px solid #e9ecef;
+                font-weight: 500;
             }
 
             .time-display {
-                font-family: 'Fira Code', monospace;
+                font-family: 'Inter', sans-serif;
                 font-size: 12px;
-                color: #E6DB74;
-                font-weight: 500;
+                color: #66D9EF;
+                font-weight: 600;
                 min-width: 85px;
                 text-align: center;
                 padding: 4px 8px;
-                background: #3E3D32;
-                border-radius: 3px;
-                border: 1px solid #49483E;
+                background: #f8f9fa;
+                border-radius: 4px;
+                border: 1px solid #e9ecef;
             }
 
             .fps-display {
-                font-family: 'Fira Code', monospace;
+                font-family: 'Inter', sans-serif;
                 font-size: 11px;
                 padding: 4px 8px;
-                background: #3E3D32;
-                border-radius: 3px;
+                background: #f8f9fa;
+                border-radius: 4px;
                 min-width: 60px;
                 text-align: center;
-                font-weight: 500;
-                border: 1px solid #49483E;
+                font-weight: 600;
+                border: 1px solid #e9ecef;
             }
 
             .fps-display.good {
-                color: #A6E22E;
+                color: #66D9EF;
             }
 
             .fps-display.warning {
-                color: #E6DB74;
+                color: #ffa94d;
             }
 
             .fps-display.bad {
-                color: #F92672;
+                color: #ff6b6b;
             }
 
             .speed-indicator {
-                font-family: 'Fira Code', monospace;
+                font-family: 'Inter', sans-serif;
                 font-size: 12px;
-                color: #272822;
-                background: #FD971F;
+                color: #ffffff;
+                background: #66D9EF;
                 padding: 4px 10px;
-                border-radius: 3px;
+                border-radius: 4px;
                 font-weight: 600;
                 min-width: 40px;
                 text-align: center;
@@ -352,17 +345,17 @@ class GSAPDebug {
                 padding: 4px 8px;
                 font-size: 10px;
                 font-weight: 500;
-                background: #3E3D32;
+                background: #ffffff;
                 border: 1px solid #66D9EF;
                 color: #66D9EF;
-                border-radius: 2px;
+                border-radius: 4px;
                 cursor: pointer;
                 transition: all 0.15s;
             }
 
             .label-btn:hover {
                 background: #66D9EF;
-                color: #272822;
+                color: #ffffff;
             }
 
             .bookmark-list {
@@ -376,10 +369,10 @@ class GSAPDebug {
                 padding: 4px 8px;
                 font-size: 10px;
                 font-weight: 500;
-                background: #3E3D32;
-                border: 1px solid #E6DB74;
-                color: #E6DB74;
-                border-radius: 2px;
+                background: #fff9db;
+                border: 1px solid #ffd43b;
+                color: #f59f00;
+                border-radius: 4px;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
@@ -388,7 +381,7 @@ class GSAPDebug {
             }
 
             .bookmark-item:hover {
-                background: #49483E;
+                background: #ffec99;
             }
 
             .bookmark-item .remove {
@@ -399,15 +392,15 @@ class GSAPDebug {
 
             .bookmark-item .remove:hover {
                 opacity: 1;
-                color: #F92672;
+                color: #ff6b6b;
             }
 
             .shortcuts-help {
                 font-size: 9px;
-                color: #75715E;
+                color: #868e96;
                 font-style: italic;
                 padding: 3px 6px;
-                background: #1E1F1C;
+                background: #f8f9fa;
                 border-radius: 2px;
             }
 
@@ -455,9 +448,6 @@ class GSAPDebug {
                 <select class="timeline-selector" id="timelineSelect">
                     <option value="">Detecting...</option>
                 </select>
-                <button class="gsap-btn" id="refreshBtn" title="Refresh Timeline List">
-                    <i class="fa-solid fa-arrows-rotate"></i>
-                </button>
             </div>
 
             <div class="gsap-section">
@@ -575,12 +565,6 @@ class GSAPDebug {
         // Timeline selector
         document.getElementById('timelineSelect').addEventListener('change', (e) => {
             this.switchTimeline(e.target.value);
-        });
-
-        // Refresh button
-        document.getElementById('refreshBtn').addEventListener('click', () => {
-            this.detectionAttempts = 0; // Reset counter when manually refreshing
-            this.detectTimelines();
         });
 
         // Playback controls
@@ -736,22 +720,13 @@ class GSAPDebug {
 
         // Auto-select first timeline
         if (Object.keys(this.timelines).length > 0) {
-            this.detectionAttempts = 0; // Reset counter on success
             select.value = Object.keys(this.timelines)[0];
             this.switchTimeline(select.value);
             console.log(`%c✅ GSAP Debug: Found ${Object.keys(this.timelines).length} timeline(s)`, 'color: #A6E22E; font-weight: bold;');
             console.log('%cTimelines detected:', 'color: #66D9EF;', Object.keys(this.timelines));
         } else {
-            this.detectionAttempts++;
-
-            if (this.detectionAttempts < this.maxDetectionAttempts) {
-                select.innerHTML = `<option>No timelines found (attempt ${this.detectionAttempts}/${this.maxDetectionAttempts})</option>`;
-                setTimeout(() => this.detectTimelines(), 1000);
-            } else {
-                select.innerHTML = '<option>No timelines found - Create a timeline and refresh</option>';
-                console.log('%c⚠️ GSAP Debug: No timelines detected after multiple attempts', 'color: #E6DB74; font-weight: bold;');
-                console.log('%cCreate a timeline (e.g., mainTL, rollTL, tl) and click the refresh button', 'color: #66D9EF;');
-            }
+            select.innerHTML = '<option>No timelines found (searching...)</option>';
+            setTimeout(() => this.detectTimelines(), 1000);
         }
     }
 
@@ -969,43 +944,57 @@ class GSAPDebug {
     }
 
     startPerformanceMonitor() {
-        this.fpsInterval = setInterval(() => {
-            const now = performance.now();
-            const delta = now - this.lastTime;
-            this.fps = Math.round(1000 / delta);
-            this.lastTime = now;
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let currentFPS = 0;
 
-            // Update FPS display
-            this.fpsDisplay.textContent = `${this.fps} FPS`;
-            this.fpsDisplay.className = 'fps-display';
+        if (typeof gsap !== 'undefined' && gsap.ticker) {
+            gsap.ticker.add(() => {
+                const now = performance.now();
+                const deltaTime = (now - lastTime) / 1000; // Convert to seconds
+                frameCount++;
 
-            if (this.fps >= 50) {
-                this.fpsDisplay.classList.add('good');
-            } else if (this.fps >= 30) {
-                this.fpsDisplay.classList.add('warning');
-            } else {
-                this.fpsDisplay.classList.add('bad');
+                if (deltaTime >= 1) { // Update FPS every second
+                    currentFPS = Math.round(frameCount / deltaTime);
+
+                    // Update FPS display
+                    if (this.fpsDisplay) {
+                        this.fpsDisplay.textContent = `${currentFPS} FPS`;
+                        this.fpsDisplay.className = 'fps-display';
+
+                        // Color based on target FPS
+                        const targetFps = gsap.ticker.fps() || 60;
+                        const fpsRatio = currentFPS / targetFps;
+
+                        if (fpsRatio >= 0.9) {
+                            this.fpsDisplay.classList.add('good');
+                        } else if (fpsRatio >= 0.6) {
+                            this.fpsDisplay.classList.add('warning');
+                        } else {
+                            this.fpsDisplay.classList.add('bad');
+                        }
+                    }
+
+                    frameCount = 0;
+                    lastTime = now;
+                }
+            });
+
+            console.log('%c⚡ FPS Monitor: Counting GSAP ticker updates', 'color: #A6E22E; font-weight: bold;');
+        } else {
+            console.warn('%c⚠️ GSAP not found, FPS monitor disabled', 'color: #E6DB74;');
+            if (this.fpsDisplay) {
+                this.fpsDisplay.textContent = 'N/A';
+                this.fpsDisplay.className = 'fps-display';
             }
-        }, 500);
+        }
     }
 
     // Public API
     destroy() {
-        // Clear performance monitor interval
-        if (this.fpsInterval) {
-            clearInterval(this.fpsInterval);
-            this.fpsInterval = null;
-        }
-
-        // Remove DOM element
         if (this.mainDiv) {
             this.mainDiv.remove();
         }
-
-        // Clear singleton instance
-        GSAPDebug.instance = null;
-
-        console.log('%c✅ GSAP Debug: Panel destroyed', 'color: #A6E22E;');
     }
 
     // Legacy compatibility
@@ -1025,9 +1014,14 @@ class GSAPDebug {
     }
 }
 
-// Auto-initialize
+// Auto-initialize with singleton pattern
 if (typeof window !== 'undefined') {
-    window.gsapDebug = new GSAPDebug();
+    if (window.gsapDebug) {
+        console.warn('%c⚠️ GSAP Debug: Instance already exists, using existing panel', 'color: #E6DB74; font-weight: bold;');
+    } else {
+        window.gsapDebug = new GSAPDebug();
+        console.log('%c🎨 GSAP Debug: Panel initialized', 'color: #66D9EF; font-weight: bold;');
+    }
 }
 
 // Legacy global function for backward compatibility
