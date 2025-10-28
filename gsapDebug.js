@@ -265,9 +265,10 @@ class GSAPDebug {
 
             .timeline-labels {
                 position: absolute;
-                width: 100%;
-                bottom: 0;
-                height: 10px;
+                width: calc(100% - 36px);
+                left: 23px;
+                bottom: 15px;
+                height: 20px;
                 pointer-events: none;
             }
 
