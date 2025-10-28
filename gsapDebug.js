@@ -264,16 +264,15 @@ class GSAPDebug {
             }
 
             .timeline-labels {
-                display: flex;
-                justify-content: space-between;
                 position: absolute;
                 width: 100%;
-                bottom: -24px;
+                bottom: 0;
+                height: 0;
                 pointer-events: none;
             }
 
             .timeline-label-marker {
-                position: relative;
+                position: absolute;
                 font-size: 9px;
                 color: #495057;
                 background: #ffffff;
@@ -282,17 +281,8 @@ class GSAPDebug {
                 white-space: nowrap;
                 border: 1px solid #dee2e6;
                 font-weight: 500;
-            }
-
-            .timeline-label-marker::before {
-                content: '';
-                position: absolute;
-                bottom: 100%;
-                left: 50%;
                 transform: translateX(-50%);
-                width: 1px;
-                height: 8px;
-                background: #dee2e6;
+                top: 8px;
             }
 
             .time-display {
