@@ -155,7 +155,7 @@ GSAPLittleBot uses three methods to find your timelines:
 - **v2**: 3/10/22 - Enhanced functionality
 - **v3**: 5/6/25 - Added timeline sorting by animated elements
 - **v4**: ES6 Class refactor with improved detection and refresh functionality
-- **v2.0**: Enhanced Edition - Multi-timeline control, label navigation, speed control, bookmarks, FPS monitor, keyboard shortcuts, timeline export, and redesigned UI
+- **VX**: Enhanced Edition - Multi-timeline control, label navigation, speed control, bookmarks, FPS monitor, keyboard shortcuts, timeline export, and redesigned UI
 
 ## Contributing
 Contributions are welcome! Feel free to submit issues or pull requests.
